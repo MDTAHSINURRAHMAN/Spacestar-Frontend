@@ -1,30 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Product } from "@/types/product";
 
 interface ProductCardProps {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  images?: string[];
+  product: Product;
 }
 
-const ProductCard = ({
-  _id,
-  name,
-  description,
-  price,
-  images,
-}: ProductCardProps) => {
+const ProductCard = ({ product }: ProductCardProps) => {
   const hasValidImage =
-    images && images.length > 0 && typeof images[0] === "string";
+    product.images &&
+    product.images.length > 0 &&
+    typeof product.images[0] === "string";
   return (
     <article>
-      <Link href={`/shopping/${_id}`}>
+      <Link href={`/shopping/${product._id}`}>
         <div className="group relative overflow-hidden">
           <Image
-            src={hasValidImage ? images[0] : ""}
-            alt={name}
+            src={hasValidImage ? product.images[0] : ""}
+            alt={product.name}
             width={500}
             height={500}
             className="w-full aspect-square object-cover"
@@ -36,11 +29,13 @@ const ProductCard = ({
 
         <div className="font-helvetica-now-display text-lg flex justify-between items-center mt-2">
           <div>
-            <h1>{name}</h1>
-            <p className="text-xs text-muted font-violet-sans">{description}</p>
+            <h1>{product.name}</h1>
+            <p className="text-xs text-muted font-violet-sans">
+              {product.shortDescription}
+            </p>
           </div>
 
-          <h2 className="text-primary-dark font-medium">${price}</h2>
+          <h2 className="text-primary-dark font-medium">${product.price}</h2>
         </div>
       </Link>
     </article>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import Navbar from "@/components/Navbar";
+import ClientLayout from "./provider/ClientLayout";
 
 const helveticaNowDisplay = localFont({
   src: [
@@ -88,8 +89,10 @@ export default function RootLayout({
       <body
         className={`${helveticaNowDisplay.variable} ${violetSans.variable} ${recoleta.variable} antialiased relative bg-[#f6f6f6]`}
       >
-        {children}
-        <Navbar />
+        <ClientLayout>
+          {children}
+          <Navbar />
+        </ClientLayout>
       </body>
     </html>
   );

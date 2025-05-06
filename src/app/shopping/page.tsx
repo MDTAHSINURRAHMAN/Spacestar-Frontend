@@ -4,39 +4,40 @@ import commonAssets from "@/assets/commonAssets";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import Image from "next/image";
-import { Product } from "@/types/product";
 import { useEffect, useState } from "react";
-
-async function getProducts() {
-  const res = await fetch(
-    "https://spacestar-backend-production.up.railway.app/api/products",
-    {
-      cache: "no-store",
-    }
-  );
-  return res.json();
-}
+import { useGetAllProductsQuery } from "@/lib/api/productApi";
 
 export default function ShoppingPage() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [bannerText, setBannerText] = useState("Shop our latest collection");
 
+  const { data: products = [], isLoading } = useGetAllProductsQuery();
+
   useEffect(() => {
-    getProducts().then((data: Product[]) => {
-      setProducts(data);
+    if (products.length > 0) {
       // Get unique categories and sort them
       const uniqueCategories = [
-        ...new Set(data.map((product) => product.category)),
+        ...new Set(products.map((product) => product.category)),
       ].sort();
       setCategories(uniqueCategories);
-    });
-  }, []);
+    }
+  }, [products]);
 
   const filteredProducts = selectedCategory
-  ? products.filter((product) => product.category === selectedCategory)
-  : products;
+    ? products.filter((product) => product.category === selectedCategory)
+    : products;
+
+  if (isLoading) {
+    return (
+      <div className="p-5 min-h-dvh flex flex-col">
+        <Header text={bannerText} />
+        <div className="flex justify-center items-center flex-grow">
+          <p className="text-2xl font-helvetica-now-display">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 min-h-dvh flex flex-col">
@@ -80,18 +81,10 @@ export default function ShoppingPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:flex-grow md:items-center">
-          {filteredProducts.map((product) => (
+          {filteredProducts?.map((product) => (
             <ProductCard
               key={product._id}
-              _id={product._id}
-              name={product.name}
-              description={product.description}
-              price={
-                typeof product.price === "string"
-                  ? parseFloat(product.price)
-                  : product.price
-              }
-              images={product.images}
+              product={product}
             />
           ))}
         </div>

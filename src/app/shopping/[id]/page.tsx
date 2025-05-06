@@ -4,90 +4,37 @@ import commonAssets from "@/assets/commonAssets";
 import CustomerReviewCard from "@/components/CustomerReviewCard";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
+import {
+  useGetAllProductsQuery,
+  useGetProductQuery,
+} from "@/lib/api/productApi";
+import { useGetProductReviewsQuery } from "@/lib/api/reviewApi";
+import { Review } from "@/types/review";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
-interface Product {
-  _id: string;
-  name: string;
-  shortDescription: string;
-  longDescription: string;
-  designer: string;
-  features: string[];
-  price: string | number;
-  category: string;
-  stock: string;
-  images: string[];
-  isPreOrder: boolean;
-  sizes: string[];
-  colors: string[];
-  material: string;
-  weight: string;
-  dimensions: string;
-  isFeatured: boolean;
-  isOnSale: boolean;
-  salePrice: string;
-}
-
-interface Review {
-  _id: string;
-  productId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
 
 export default function SingleProductPage() {
   const params = useParams();
   const id = params.id as string;
-  const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const res = await fetch(
-          `https://spacestar-backend-production.up.railway.app/api/products/${id}`,
-          { cache: "no-store" }
-        );
-        const data = await res.json();
-        setProduct(data);
-        setLoading(false);
-        
-        // Fetch related products
-        const productsRes = await fetch(
-          "https://spacestar-backend-production.up.railway.app/api/products",
-          { cache: "no-store" }
-        );
-        const productsData = await productsRes.json();
-        // Get 3 random products that are not the current one
-        const filtered = productsData.filter((p: Product) => p._id !== id);
-        const randomProducts = filtered.sort(() => 0.5 - Math.random()).slice(0, 3);
-        setRelatedProducts(randomProducts);
-        
-        // Fetch reviews for this product
-        const reviewsRes = await fetch(
-          `https://spacestar-backend-production.up.railway.app/api/reviews/${product?._id}`,
-          { cache: "no-store" }
-        );
-        console.log(reviewsRes);
-        const reviewsData = await reviewsRes.json();
-        setReviews(reviewsData);
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        setLoading(false);
-      }
-    };
+  const { data: product, isLoading: productLoading } = useGetProductQuery(id);
+  const { data: allProducts } = useGetAllProductsQuery();
+  const { data: reviews = [] } = useGetProductReviewsQuery(id) as {
+    data: Review[];
+  };
 
-    fetchProduct();
-  }, [id]);
+  console.log(reviews);
 
-  if (loading) {
+  // Get 3 random related products that are not the current one
+  const relatedProducts = allProducts
+    ? allProducts
+        .filter((p) => p._id !== id)
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3)
+    : [];
+
+  if (productLoading) {
     return (
       <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
         <p className="text-2xl font-helvetica-now-display">Loading...</p>
@@ -104,8 +51,7 @@ export default function SingleProductPage() {
   }
 
   const hasImages = product.images && product.images.length > 0;
-  const price = typeof product.price === "string" ? product.price : product.price.toString();
-  const formattedPrice = price.includes("$") ? price : `$${price}`;
+  const formattedPrice = `$${product.price}`;
 
   return (
     <div className="p-5 pb-20">
@@ -122,15 +68,18 @@ export default function SingleProductPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
           <aside className="order-1 md:sticky md:top-5 md:self-start">
             {hasImages && product.images[0] ? (
-              <Image 
-                src={product.images[0]} 
-                alt={product.name} 
+              <Image
+                src={product.images[0]}
+                alt={product.name}
                 width={500}
                 height={500}
                 className="w-full"
               />
             ) : (
-              <Image src={commonAssets.images.productDetailsPlaceholder} alt="" />
+              <Image
+                src={commonAssets.images.productDetailsPlaceholder}
+                alt=""
+              />
             )}
           </aside>
 
@@ -230,7 +179,8 @@ export default function SingleProductPage() {
 
             <div className="font-helvetica-now-display pt-10">
               <p>
-                {product.longDescription || `Crafted from premium materials with meticulous attention to
+                {product.longDescription ||
+                  `Crafted from premium materials with meticulous attention to
                 detail, this exclusive Studio Innate™ Long Sleeve T-Shirt
                 offers comfort with its boxy and dropped shoulder fit. Made from
                 100% heavyweight 240gsm cotton, each piece is finished and
@@ -257,15 +207,18 @@ export default function SingleProductPage() {
 
           <aside className="order-2 md:order-3 md:sticky md:top-5 md:self-start">
             {hasImages && product.images[1] ? (
-              <Image 
-                src={product.images[1]} 
-                alt={product.name} 
+              <Image
+                src={product.images[1]}
+                alt={product.name}
                 width={500}
                 height={500}
                 className="w-full"
               />
             ) : (
-              <Image src={commonAssets.images.productDetailsPlaceholder} alt="" />
+              <Image
+                src={commonAssets.images.productDetailsPlaceholder}
+                alt=""
+              />
             )}
           </aside>
         </div>
@@ -310,12 +263,13 @@ export default function SingleProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
             {reviews.length > 0 ? (
               reviews.map((review) => (
-                <CustomerReviewCard 
+                <CustomerReviewCard
                   key={review._id}
-                  text={review.comment}
+                  image={review.imageUrl || review.image}
+                  text={review.review}
                   rating={review.rating}
-                  userName={review.userName}
-                  date={review.date}
+                  userName={review.name}
+                  date={new Date(review.createdAt).toLocaleDateString()}
                 />
               ))
             ) : (
@@ -342,11 +296,7 @@ export default function SingleProductPage() {
                 _id={product._id}
                 name={product.name}
                 description={product.shortDescription}
-                price={
-                  typeof product.price === "string"
-                    ? parseFloat(product.price.replace("$", ""))
-                    : product.price
-                }
+                price={product.price}
                 images={product.images}
               />
             ))}

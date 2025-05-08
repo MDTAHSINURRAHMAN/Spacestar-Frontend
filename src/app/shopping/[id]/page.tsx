@@ -1,5 +1,6 @@
 "use client";
 
+import Cookies from "js-cookie";
 import commonAssets from "@/assets/commonAssets";
 import CustomerReviewCard from "@/components/CustomerReviewCard";
 import Header from "@/components/Header";
@@ -9,22 +10,55 @@ import {
   useGetProductQuery,
 } from "@/lib/api/productApi";
 import { useGetProductReviewsQuery } from "@/lib/api/reviewApi";
+import {
+  useGenerateCartIdQuery,
+  useAddToCartMutation,
+} from "@/lib/api/cartApi";
 import { Review } from "@/types/review";
 import Image from "next/image";
-import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useGetAllTextsQuery } from "@/lib/api/homeApi";
 
 export default function SingleProductPage() {
   const params = useParams();
   const id = params.id as string;
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [cartId, setCartId] = useState<string | null>(null);
 
   const { data: product, isLoading: productLoading } = useGetProductQuery(id);
-  const { data: allProducts } = useGetAllProductsQuery();
+  const { data: allProducts } = useGetAllProductsQuery({});
+  const { data: texts, isLoading: textsLoading } = useGetAllTextsQuery();
   const { data: reviews = [] } = useGetProductReviewsQuery(id) as {
     data: Review[];
   };
 
-  console.log(reviews);
+  // Get existing cartId from cookie or generate new one
+  const existingCartId = Cookies.get("cartId");
+  const {
+    data: cartIdData,
+    isLoading: isGeneratingCart,
+    error: cartError,
+  } = useGenerateCartIdQuery(undefined, {
+    skip: !!existingCartId,
+  });
+
+  useEffect(() => {
+    // If we have an existing cartId in cookies, use that
+    if (existingCartId) {
+      setCartId(existingCartId);
+      return;
+    }
+
+    // If we got a new cartId from the API, save it
+    if (cartIdData?.cartId) {
+      Cookies.set("cartId", cartIdData.cartId, { expires: 7 });
+      setCartId(cartIdData.cartId);
+    }
+  }, [cartIdData, existingCartId]);
+
+  const [addToCart] = useAddToCartMutation();
 
   // Get 3 random related products that are not the current one
   const relatedProducts = allProducts
@@ -34,10 +68,28 @@ export default function SingleProductPage() {
         .slice(0, 3)
     : [];
 
-  if (productLoading) {
+  const scrollToSizeChart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const sizeChart = document.getElementById('size-chart');
+    if (sizeChart) {
+      sizeChart.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  if (productLoading || isGeneratingCart) {
     return (
       <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
         <p className="text-2xl font-helvetica-now-display">Loading...</p>
+      </div>
+    );
+  }
+
+  if (cartError) {
+    return (
+      <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
+        <p className="text-2xl font-helvetica-now-display text-red-500">
+          Failed to initialize cart. Please try again later.
+        </p>
       </div>
     );
   }
@@ -53,9 +105,35 @@ export default function SingleProductPage() {
   const hasImages = product.images && product.images.length > 0;
   const formattedPrice = `$${product.price}`;
 
+  const handleAddToCart = async () => {
+    if (!cartId) {
+      console.error("No cart ID available");
+      return;
+    }
+
+    try {
+      await addToCart({
+        cartId,
+        item: {
+          productId: product._id,
+          name: product.name,
+          image: product.images[0] || "",
+          size: "M",
+          availableSizes: product.sizes,
+          color: "W",
+          availableColors: product.colors,
+          quantity: 1,
+          price: product.price,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    }
+  };
+
   return (
     <div className="p-5 pb-20">
-      <Header text="Product Details" />
+      <Header text={texts?.[0]?.text || ""} />
 
       <div className="flex md:hidden justify-start gap-3 mb-5">
         <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
@@ -133,8 +211,14 @@ export default function SingleProductPage() {
                 <p className="text-xs">Size</p>
                 <ul className="flex gap-5 justify-center text-base pt-3">
                   {product.sizes && product.sizes.length > 0 ? (
-                    product.sizes.map((size, index) => (
-                      <li key={index}>{size}</li>
+                    product.sizes.map((size) => (
+                      <button
+                        key={size}
+                        className={`${size === selectedSize ? "text-primary" : ""}`}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        {size}
+                      </button>
                     ))
                   ) : (
                     <>
@@ -151,8 +235,14 @@ export default function SingleProductPage() {
                 <p className="text-xs">Color</p>
                 <ul className="flex gap-5 justify-center text-base pt-3">
                   {product.colors && product.colors.length > 0 ? (
-                    product.colors.map((color, index) => (
-                      <li key={index}>{color}</li>
+                    product.colors.map((color) => (
+                      <button
+                        key={color}
+                        className={`${color === selectedColor ? "text-primary" : ""}`}
+                        onClick={() => setSelectedColor(color)}
+                      >
+                        {color}
+                      </button>
                     ))
                   ) : (
                     <>
@@ -163,15 +253,18 @@ export default function SingleProductPage() {
                 </ul>
               </div>
 
-              <Link
-                href="#"
-                className="text-primary text-xs font-violet-sans uppercase block underline pt-5"
+              <button
+                onClick={scrollToSizeChart}
+                className="text-primary text-xs font-violet-sans uppercase block underline pt-5 mx-auto"
               >
                 Size Guide
-              </Link>
+              </button>
 
               <div className="pt-5">
-                <button className="bg-primary font-violet-sans uppercase text-white px-10 py-3 text-sm">
+                <button
+                  onClick={handleAddToCart}
+                  className="bg-primary font-violet-sans uppercase text-white px-10 py-3 text-sm"
+                >
                   Add To Cart
                 </button>
               </div>
@@ -186,23 +279,24 @@ export default function SingleProductPage() {
                 100% heavyweight 240gsm cotton, each piece is finished and
                 screen printed by us in-house with precision. This exclusive
                 collection is designed for those who appreciate luxury,
-                typography and design.
-                <br />
-                <br />
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo
-                alias dolorum quaerat! Reprehenderit, quidem accusantium ratione
-                ducimus iure, veniam labore illo, placeat unde dolor aliquid
-                earum fugiat atque repellendus? Deleniti laudantium fugit
-                veritatis modi provident placeat vero eos, aperiam soluta, at
-                dolores! Quibusdam dolor, reiciendis sequi ipsum saepe ullam
-                alias eius illum ducimus fugit possimus odit eum et voluptas
-                corrupti vero fugiat in consequatur quam. Unde obcaecati itaque
-                aperiam. Quasi odit fugiat hic esse dolor minus distinctio nulla
-                cupiditate omnis sint nisi laboriosam, quam eum non perferendis
-                soluta minima aut! Atque rerum ut veritatis ea qui voluptatem
-                repudiandae tempore necessitatibus!`}
+                typography and design.`}
               </p>
             </div>
+
+            {/* Chart Image Scrollable Section */}
+            {product.chartImage && (
+              <div id="size-chart" className="w-full overflow-x-auto mt-10">
+                <div className="min-w-[400px] max-w-full">
+                  <Image
+                    src={product.chartImage}
+                    alt="Size Chart"
+                    width={800}
+                    height={500}
+                    className="w-full object-cover object-top"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <aside className="order-2 md:order-3 md:sticky md:top-5 md:self-start">
@@ -273,35 +367,25 @@ export default function SingleProductPage() {
                 />
               ))
             ) : (
-              <>
-                <CustomerReviewCard />
-                <CustomerReviewCard />
-                <CustomerReviewCard />
-                <CustomerReviewCard />
-                <CustomerReviewCard />
-                <CustomerReviewCard />
-              </>
+              <p className="text-center col-span-3 py-5 font-violet-sans">
+                No reviews yet
+              </p>
             )}
           </div>
         </div>
 
-        <div className="pt-10">
-          <p className="text-3xl font-helvetica-now-display text-center">
-            View More Products
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
-            {relatedProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                _id={product._id}
-                name={product.name}
-                description={product.shortDescription}
-                price={product.price}
-                images={product.images}
-              />
-            ))}
+        {relatedProducts.length > 0 && (
+          <div className="pt-20">
+            <p className="text-3xl font-helvetica-now-display">
+              Related Products
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
+              {relatedProducts.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

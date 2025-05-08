@@ -13,14 +13,22 @@ import {
 import CartItem from "./CartItem";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useGenerateCartIdQuery, useGetCartQuery } from "@/lib/api/cartApi";
 
 const Navbar = () => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { data: cartIdData } = useGenerateCartIdQuery();
+  const { data: cart } = useGetCartQuery(cartIdData?.cartId ?? "", {
+    skip: !cartIdData?.cartId,
+  });
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  const totalAmount =
+    cart?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
 
   return (
     <nav
@@ -56,7 +64,7 @@ const Navbar = () => {
             </li>
           </DialogTrigger>
 
-          <DialogContent className="max-h-dvh md:-bottom-[10rem] md:top-auto !rounded-none p-2 max-w-screen-sm z-50 md:z-40">
+          <DialogContent className="max-h-dvh md:-bottom-[1rem] md:top-auto !rounded-none p-2 max-w-screen-sm z-60">
             <DialogHeader>
               <DialogTitle className="font-helvetica-now-display text-sm font-semibold !text-left">
                 Cart List
@@ -65,14 +73,22 @@ const Navbar = () => {
 
             <div>
               <main className="max-h-[calc(100dvh-350px)] md:max-h-[455px] overflow-auto">
-                <CartItem />
-                <hr />
-                <CartItem />
+                {cart?.items.map((item) => (
+                  <div key={item._id}>
+                    <CartItem item={item} cartId={cart.cartId} />
+                    <hr />
+                  </div>
+                ))}
+                {(!cart?.items || cart.items.length === 0) && (
+                  <p className="text-center py-5 font-violet-sans">
+                    Your cart is empty
+                  </p>
+                )}
               </main>
 
               <footer className="grid grid-cols-2 gap-3 items-center pt-2">
                 <p className="font-helvetica-now-display text-base md:text-lg font-medium text-right">
-                  Total Amount: $99.99
+                  Total Amount: ${totalAmount.toFixed(2)}
                 </p>
                 <Link
                   href="/checkout"

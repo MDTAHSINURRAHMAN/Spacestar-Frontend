@@ -6,6 +6,7 @@ import { aboutApi } from "./api/aboutApi"; // ✅ Import aboutApi
 import { productApi } from "./api/productApi"; // ✅ Import productApi
 import { reviewApi } from "./api/reviewApi"; // ✅ Import reviewApi
 import { storyApi } from "./api/storyApi"; // ✅ Import storyApi
+import { cartApi } from "./api/cartApi"; // ✅ Import cartApi
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer, // ✅ Add reducer
     [reviewApi.reducerPath]: reviewApi.reducer, // ✅ Add reducer
     [storyApi.reducerPath]: storyApi.reducer, // ✅ Add reducer
+    [cartApi.reducerPath]: cartApi.reducer, // ✅ Add reducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -23,5 +25,6 @@ export const store = configureStore({
       .concat(aboutApi.middleware)
       .concat(productApi.middleware)
       .concat(reviewApi.middleware)
-      .concat(storyApi.middleware), // ✅ Add middleware
+      .concat(storyApi.middleware)
+      .concat(cartApi.middleware), // ✅ Add middleware
 });

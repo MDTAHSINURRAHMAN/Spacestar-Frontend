@@ -17,8 +17,8 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="p-5">
-      <main className="max-w-screen-xl mx-auto">
+    <div className="">
+      <main className="w-2/3 mx-auto">
         <div className="flex items-center gap-2 pt-10">
           <Image
             src={commonAssets.icons.logo}
@@ -26,11 +26,11 @@ export default function AboutPage() {
             className="max-w-6 md:w-full"
           />
           <p className="text-2xl text-primary font-helvetica-now-display whitespace-nowrap">
-            Spacestar Shopping
+            Spacestar
           </p>
         </div>
 
-        <div className="pt-10 space-y-10 font-medium">
+        <div className="space-y-10 font-medium">
           <h1 className="font-helvetica-now-display text-2xl md:text-3xl text-muted">
             {aboutContent?.brandMessage}
           </h1>

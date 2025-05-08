@@ -4,29 +4,24 @@ import commonAssets from "@/assets/commonAssets";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGetAllProductsQuery } from "@/lib/api/productApi";
 
 export default function ShoppingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
   const [bannerText, setBannerText] = useState("Shop our latest collection");
 
-  const { data: products = [], isLoading } = useGetAllProductsQuery();
+  // Query for filtered products
+  const { data: products = [], isLoading } = useGetAllProductsQuery(
+    selectedCategory ? { category: selectedCategory } : {}
+  );
+  // Query for all products (unfiltered) to get all categories
+  const { data: allProducts = [] } = useGetAllProductsQuery({});
 
-  useEffect(() => {
-    if (products.length > 0) {
-      // Get unique categories and sort them
-      const uniqueCategories = [
-        ...new Set(products.map((product) => product.category)),
-      ].sort();
-      setCategories(uniqueCategories);
-    }
-  }, [products]);
-
-  const filteredProducts = selectedCategory
-    ? products.filter((product) => product.category === selectedCategory)
-    : products;
+  // Always show all categories from the unfiltered product list
+  const categories = [
+    ...new Set(allProducts.map((product) => product.category)),
+  ].sort();
 
   if (isLoading) {
     return (
@@ -40,10 +35,10 @@ export default function ShoppingPage() {
   }
 
   return (
-    <div className="p-5 min-h-dvh flex flex-col">
-      <Header text={bannerText} />
+    <div className="min-h-dvh flex flex-col">
+      {/* <Header text={bannerText} /> */}
 
-      <main className="max-w-screen-xl mx-auto flex-grow flex flex-col pt-10">
+      <main className="w-2/3 mx-auto flex-grow flex flex-col pt-10">
         <div className="flex justify-between flex-wrap md:flex-nowrap gap-x-10 items-stretch pb-5">
           <div className="flex items-center gap-2">
             <Image
@@ -80,12 +75,9 @@ export default function ShoppingPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:flex-grow md:items-center">
-          {filteredProducts?.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:flex-grow md:items-center mt-10">
+          {products?.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </main>

@@ -21,10 +21,10 @@ export default function Home() {
   const bannerImage = banner?.imageUrl || commonAssets.images.placeholder;
 
   return (
-    <div className="h-dvh flex flex-col p-5">
+    <div className="h-dvh flex flex-col">
       <Header text={texts?.[0]?.text || ""} />
 
-      <main className="flex-grow max-w-screen-xl mx-auto w-full relative">
+      <main className="flex-grow w-2/3 mx-auto relative">
         <aside className="absolute top-0 left-0 flex gap-3">
           <Image
             src={commonAssets.icons.logo}

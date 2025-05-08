@@ -20,4 +20,5 @@ export interface Product {
   salePrice: string;
   createdAt: string;
   updatedAt: string;
+  chartImage?: string;
 }

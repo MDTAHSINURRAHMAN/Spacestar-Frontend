@@ -1,16 +1,30 @@
+"use client";
+
 import commonAssets from "@/assets/commonAssets";
 import CartItem from "@/components/CartItem";
 import Header from "@/components/Header";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
-
+import { useGenerateCartIdQuery, useGetCartQuery } from "@/lib/api/cartApi";
+import { useGetAllTextsQuery } from "@/lib/api/homeApi";
 export default function CheckoutPage() {
-  return (
-    <div className="min-h-[100dvh] p-5">
-      <Header />
+  const { data: cartIdData } = useGenerateCartIdQuery();
+  const { data: cart } = useGetCartQuery(cartIdData?.cartId ?? "", {
+    skip: !cartIdData?.cartId,
+  });
+  const { data: texts } = useGetAllTextsQuery();
 
-      <div className="grid grid-cols-3 lg:grid-cols-6">
-        <aside className="col-span-2 hidden md:block"></aside>
+  const totalAmount =
+    cart?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
+  const shippingCost = 5.99; // You can adjust this or make it dynamic based on your needs
+  const finalTotal = totalAmount + shippingCost;
+
+  return (
+    <div className="w-2/3 mx-auto">
+      <Header text={texts?.[0]?.text || ""} />
+
+      <div className="grid">
+        {/* <aside className="col-span-2 hidden md:block"></aside> */}
 
         <main className="space-y-10 col-span-3">
           <div className="flex items-center gap-2">
@@ -107,9 +121,17 @@ export default function CheckoutPage() {
             </h2>
 
             <div className="space-y-3">
-              <CartItem />
-              <hr />
-              <CartItem />
+              {cart?.items.map((item) => (
+                <div key={item._id}>
+                  <CartItem item={item} cartId={cart.cartId} />
+                  <hr />
+                </div>
+              ))}
+              {(!cart?.items || cart.items.length === 0) && (
+                <p className="text-center py-5 font-violet-sans">
+                  Your cart is empty
+                </p>
+              )}
 
               <div className="md:w-2/3 ms-auto font-violet-sans text-sm flex flex-wrap gap-2 md:gap-3">
                 <input
@@ -123,14 +145,22 @@ export default function CheckoutPage() {
               </div>
 
               <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2">
-                <p className="text-xs">Subtotal · 2 items</p>
-                <p className="text-primary text-end">$40.95</p>
+                <p className="text-xs">
+                  Subtotal · {cart?.items.length ?? 0} items
+                </p>
+                <p className="text-primary text-end">
+                  ${totalAmount.toFixed(2)}
+                </p>
 
                 <p className="text-xs">Shipping</p>
-                <p className="text-primary text-end">$40.95</p>
+                <p className="text-primary text-end">
+                  ${shippingCost.toFixed(2)}
+                </p>
 
                 <p className="text-xs">Total</p>
-                <p className="text-primary text-end">$40.95</p>
+                <p className="text-primary text-end">
+                  ${finalTotal.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
@@ -153,8 +183,8 @@ export default function CheckoutPage() {
                   htmlFor="terms"
                   className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  I agree to Terms & Conditions, Refund Policy and Privacy
-                  Policy of Spacestar
+                  I agree to Terms & Conditions, Refund Policy and Privacy
+                  Policy of Spacestar
                 </label>
               </div>
 

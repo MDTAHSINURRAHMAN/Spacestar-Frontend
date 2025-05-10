@@ -13,19 +13,31 @@ import {
 import CartItem from "./CartItem";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useGenerateCartIdQuery, useGetCartQuery } from "@/lib/api/cartApi";
+import { useGetCartQuery } from "@/lib/api/cartApi";
+import { v4 as uuidv4 } from "uuid";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const { data: cartIdData } = useGenerateCartIdQuery();
-  const { data: cart } = useGetCartQuery(cartIdData?.cartId ?? "", {
-    skip: !cartIdData?.cartId,
-  });
+  const [cartId, setCartId] = useState("");
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let id = Cookies.get("cartId") || "";
+    if (!id) {
+      id = uuidv4();
+      Cookies.set("cartId", id, { expires: 7 });
+      // Optionally: call your backend to create an empty cart for this id
+      // await fetch(`/api/cart/${id}`, { method: "POST" });
+    }
+    setCartId(id);
+  }, []);
+
+  const { data: cart } = useGetCartQuery(cartId, { skip: !cartId });
 
   const totalAmount =
     cart?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
@@ -47,7 +59,7 @@ const Navbar = () => {
           <Link
             key={itm.label}
             href={itm.href}
-            className={`text-xs md:text-sm ${pathname === itm.href ? 'bg-white text-black' : 'bg-[#222220] text-white hover:bg-white hover:text-black'} px-3 md:px-4 py-1 md:py-2 transition-colors cursor-pointer grid place-items-center`}
+            className={`text-xs md:text-sm ${pathname === itm.href ? "bg-white text-black" : "bg-[#222220] text-white hover:bg-white hover:text-black"} px-3 md:px-4 py-1 md:py-2 transition-colors cursor-pointer grid place-items-center`}
           >
             {itm.label}
           </Link>

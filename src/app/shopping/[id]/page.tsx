@@ -29,7 +29,7 @@ export default function SingleProductPage() {
 
   const { data: product, isLoading: productLoading } = useGetProductQuery(id);
   const { data: allProducts } = useGetAllProductsQuery({});
-  const { data: texts, isLoading: textsLoading } = useGetAllTextsQuery();
+  const { data: texts } = useGetAllTextsQuery();
   const { data: reviews = [] } = useGetProductReviewsQuery(id) as {
     data: Review[];
   };
@@ -70,9 +70,9 @@ export default function SingleProductPage() {
 
   const scrollToSizeChart = (e: React.MouseEvent) => {
     e.preventDefault();
-    const sizeChart = document.getElementById('size-chart');
+    const sizeChart = document.getElementById("size-chart");
     if (sizeChart) {
-      sizeChart.scrollIntoView({ behavior: 'smooth' });
+      sizeChart.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -132,17 +132,17 @@ export default function SingleProductPage() {
   };
 
   return (
-    <div className="p-5 pb-20">
+    <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
+      {/* Right shadow-like rectangle (hidden on mobile) */}
+      <div className="hidden lg:block absolute right-0 bottom-1/4 -translate-y-1/4 h-[100px] w-24 sm:w-32 lg:w-56 bg-gray-300 opacity-60 z-0" />
       <Header text={texts?.[0]?.text || ""} />
-
       <div className="flex md:hidden justify-start gap-3 mb-5">
         <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
         <p className="text-2xl md:text-3xl text-primary font-helvetica-now-display">
           Spacestar
         </p>
       </div>
-
-      <main className="max-w-screen-xl mx-auto">
+      <main className="max-w-screen-xl mx-auto relative z-10 w-full lg:w-4/5 xl:w-3/4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
           <aside className="order-1 md:sticky md:top-5 md:self-start">
             {hasImages && product.images[0] ? (

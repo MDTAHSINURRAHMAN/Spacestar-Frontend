@@ -33,8 +33,8 @@ const Navbar = () => {
   return (
     <nav
       className={
-        "fixed w-fit p-1 bottom-3 left-1/2 -translate-x-1/2 bg-black z-50" +
-        (pathname.split("/").includes("select-country") ? "hidden" : "")
+        "fixed w-fit p-1 bottom-3 left-1/2 -translate-x-1/2 bg-black z-[999]" +
+        (pathname.split("/").includes("select-country") ? " hidden" : "")
       }
     >
       <ul className="flex gap-1 font-violet-sans text-sm uppercase w-max">
@@ -47,7 +47,7 @@ const Navbar = () => {
           <Link
             key={itm.label}
             href={itm.href}
-            className="text-xs md:text-sm bg-[#222220] hover:bg-white text-white hover:text-black px-3 md:px-4 py-1 md:py-2 transition-colors cursor-pointer grid place-items-center"
+            className={`text-xs md:text-sm ${pathname === itm.href ? 'bg-white text-black' : 'bg-[#222220] text-white hover:bg-white hover:text-black'} px-3 md:px-4 py-1 md:py-2 transition-colors cursor-pointer grid place-items-center`}
           >
             {itm.label}
           </Link>
@@ -64,19 +64,19 @@ const Navbar = () => {
             </li>
           </DialogTrigger>
 
-          <DialogContent className="max-h-dvh md:-bottom-[1rem] md:top-auto !rounded-none p-2 max-w-screen-sm z-60">
-            <DialogHeader>
+          <DialogContent className="fixed left-1/2 -translate-x-1/2 !rounded-none p-0 max-w-screen-sm z-[999] w-11/12 md:w-4/5 max-h-[70vh] md:max-h-[60vh] flex flex-col bg-white overflow-hidden">
+            <DialogHeader className="p-2 border-b">
               <DialogTitle className="font-helvetica-now-display text-sm font-semibold !text-left">
                 Cart List
               </DialogTitle>
             </DialogHeader>
 
-            <div>
-              <main className="max-h-[calc(100dvh-350px)] md:max-h-[455px] overflow-auto">
+            <div className="flex flex-col h-full overflow-hidden">
+              <main className="flex-1 overflow-y-auto p-2 max-h-[40vh] md:max-h-[45vh]">
                 {cart?.items.map((item) => (
-                  <div key={item._id}>
+                  <div key={item._id} className="py-2">
                     <CartItem item={item} cartId={cart.cartId} />
-                    <hr />
+                    <hr className="mt-2" />
                   </div>
                 ))}
                 {(!cart?.items || cart.items.length === 0) && (
@@ -86,7 +86,7 @@ const Navbar = () => {
                 )}
               </main>
 
-              <footer className="grid grid-cols-2 gap-3 items-center pt-2">
+              <footer className="grid grid-cols-2 gap-3 items-center p-3 mt-auto border-t bg-white">
                 <p className="font-helvetica-now-display text-base md:text-lg font-medium text-right">
                   Total Amount: ${totalAmount.toFixed(2)}
                 </p>

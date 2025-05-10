@@ -29,13 +29,15 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         <div className="font-helvetica-now-display text-lg flex justify-between items-center mt-2">
           <div>
-            <h1>{product.name}</h1>
-            <p className="text-xs text-muted font-violet-sans">
+            <h1 className="uppercase">{product.name}</h1>
+            <p className="text-xs text-muted font-violet-sans uppercase">
               {product.shortDescription}
             </p>
           </div>
 
-          <h2 className="text-primary-dark font-medium">${product.price}</h2>
+          <h2 className="text-primary-dark font-medium uppercase">
+            ${product.price}
+          </h2>
         </div>
       </Link>
     </article>

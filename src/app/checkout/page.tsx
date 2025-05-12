@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { useGenerateCartIdQuery, useGetCartQuery } from "@/lib/api/cartApi";
 import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import Navbar from "@/components/Navbar";
+
 export default function CheckoutPage() {
   const { data: cartIdData } = useGenerateCartIdQuery();
   const { data: cart } = useGetCartQuery(cartIdData?.cartId ?? "", {
@@ -20,18 +22,17 @@ export default function CheckoutPage() {
   const finalTotal = totalAmount + shippingCost;
 
   return (
-    <div className="w-2/3 mx-auto">
+    <div className="pl-[60px] md:pl-[80px] lg:w-4/5 xl:w-3/4 mx-auto mt-8">
       <Header text={texts?.[0]?.text || ""} />
+      <Navbar />
 
-      <div className="grid">
-        {/* <aside className="col-span-2 hidden md:block"></aside> */}
-
-        <main className="space-y-10 col-span-3">
+      <div className="grid grid-cols-1">
+        <main className="space-y-10">
           <div className="flex items-center gap-2">
             <Image
               src={commonAssets.icons.logo}
               alt="Spacestar"
-              className="max-w-6 md:w-full"
+              className="w-6 sm:w-8 md:w-12"
             />
             <p className="text-2xl text-primary font-helvetica-now-display">
               Spacestar
@@ -144,7 +145,7 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2">
+              <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2 uppercase">
                 <p className="text-xs">
                   Subtotal · {cart?.items.length ?? 0} items
                 </p>

@@ -133,8 +133,7 @@ export default function SingleProductPage() {
 
   return (
     <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
-      {/* Right shadow-like rectangle (hidden on mobile) */}
-      <div className="hidden lg:block absolute right-0 bottom-1/4 -translate-y-1/4 h-[100px] w-24 sm:w-32 lg:w-56 bg-gray-300 opacity-60 z-0" />
+      
       <Header text={texts?.[0]?.text || ""} />
       <div className="flex md:hidden justify-start gap-3 mb-5">
         <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
@@ -142,7 +141,7 @@ export default function SingleProductPage() {
           Spacestar
         </p>
       </div>
-      <main className="max-w-screen-xl mx-auto relative z-10 w-full lg:w-4/5 xl:w-3/4">
+      <main className="max-w-screen-xl mx-auto relative z-10 w-full ">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
           <aside className="order-1 md:sticky md:top-5 md:self-start">
             {hasImages && product.images[0] ? (
@@ -173,23 +172,23 @@ export default function SingleProductPage() {
               </p>
             </div>
 
-            <div className="text-center pt-10 md:pt-20">
-              <h1 className="font-helvetica-now-display text-6xl font-medium">
+            <div className="text-center pt-10">
+              <h1 className="font-helvetica-now-display text-3xl md:text-4xl lg:text-5xl font-medium">
                 {product.name}
               </h1>
-              <p className="font-violet-sans uppercase text-lg pt-3">
+              <p className="font-violet-sans uppercase text-sm lg:text-md pt-3">
                 {product.shortDescription}
               </p>
             </div>
 
-            <div className="text-center mt-10">
+            <div className="text-center mt-5 md:mt-7">
               <h2 className="font-helvetica-now-display text-primary-dark text-3xl">
                 {formattedPrice}
               </h2>
 
-              <div className="text-sm font-violet-sans uppercase pt-5">
+              <div className="text-xs font-violet-sans uppercase pt-5">
                 <p>Design By {product.designer || "Shyed"}</p>
-                <ul className="flex gap-x-3 flex-wrap justify-center pt-3">
+                <ul className="flex gap-x-3 flex-wrap justify-center pt-3 text-xs">
                   {product.features && product.features.length > 0 ? (
                     product.features.map((feature, index) => (
                       <li key={index}>• {feature}</li>
@@ -270,7 +269,7 @@ export default function SingleProductPage() {
               </div>
             </div>
 
-            <div className="font-helvetica-now-display pt-10">
+            <div className="font-helvetica-now-display text-sm pt-10">
               <p>
                 {product.longDescription ||
                   `Crafted from premium materials with meticulous attention to
@@ -317,7 +316,7 @@ export default function SingleProductPage() {
           </aside>
         </div>
 
-        <div className="hidden md:grid grid-cols-2 gap-10 pt-20">
+        <div className="hidden md:grid grid-cols-2 gap-10 pt-20 lg:w-4/5 xl:w-3/4 mx-auto">
           {hasImages && product.images[2] ? (
             <Image
               src={product.images[2]}
@@ -350,11 +349,11 @@ export default function SingleProductPage() {
           )}
         </div>
 
-        <div className="pt-10">
+        <div className="pt-14 lg:w-4/5 xl:w-3/4 mx-auto">
           <p className="text-3xl font-helvetica-now-display">
-            Customer Reviews
+            Customer Stores
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
             {reviews.length > 0 ? (
               reviews.map((review) => (
                 <CustomerReviewCard
@@ -375,7 +374,7 @@ export default function SingleProductPage() {
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="pt-20">
+          <div className="pt-20 lg:w-4/5 xl:w-3/4 mx-auto">
             <p className="text-3xl font-helvetica-now-display">
               Related Products
             </p>

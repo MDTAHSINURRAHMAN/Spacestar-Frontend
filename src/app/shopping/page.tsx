@@ -45,14 +45,11 @@ export default function ShoppingPage() {
   }
 
   return (
-    <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 lg:mt-8 mb-24  min-h-dvh">
+    <div className="flex flex-col mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
       <Header text={bannerText} />
 
-      {/* Left and right shadow rectangles for large screens, matching homepage */}
-      <div className="hidden lg:block absolute left-0 top-1/4 -translate-y-1/4 h-[100px] w-24 sm:w-32 lg:w-56 bg-gray-300 opacity-60 z-0" />
-
       {/* Categories dropdown for mobile (below md) */}
-      <div className="block md:hidden mb-4">
+      <div className="block md:hidden mb-8">
         <Popover>
           <PopoverTrigger asChild>
             <button className="border border-black px-4 py-2 uppercase font-violet-sans text-xs bg-white w-full">

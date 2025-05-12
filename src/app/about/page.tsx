@@ -18,8 +18,7 @@ export default function AboutPage() {
 
   return (
     <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
-      {/* Right shadow-like rectangle (hidden on mobile) */}
-      <div className="hidden lg:block absolute right-0 bottom-1/4 -translate-y-1/4 h-[100px] w-24 sm:w-32 lg:w-56 bg-gray-300 opacity-60 z-0" />
+
       <main className="flex-grow w-full lg:w-4/5 xl:w-3/4 mx-auto relative z-10">
         <div className="flex items-center gap-2 pt-10">
           <Image

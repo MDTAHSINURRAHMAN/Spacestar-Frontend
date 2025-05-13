@@ -12,18 +12,19 @@ import {
 } from "./ui/dialog";
 import CartItem from "./CartItem";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { setCartOpen } from "@/lib/features/cartSlice";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
   const cart = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    dispatch(setCartOpen(false));
+  }, [pathname, dispatch]);
 
   const totalAmount = cart.items.reduce((sum, item) => sum + item.total, 0);
 
@@ -50,7 +51,10 @@ const Navbar = () => {
           </Link>
         ))}
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+          open={cart.isCartOpen}
+          onOpenChange={(open) => dispatch(setCartOpen(open))}
+        >
           <DialogTrigger>
             <li className="bg-primary grid place-items-center p-2 md:p-2">
               <Image
@@ -62,7 +66,7 @@ const Navbar = () => {
               />
             </li>
           </DialogTrigger>
-          
+
           <DialogContent className="fixed !rounded-none p-0 w-11/12 md:w-[670px] md:h-[455px] flex flex-col bg-white overflow-hidden">
             <DialogHeader className="p-2">
               <DialogTitle className="font-helvetica-now-display text-sm !text-left">
@@ -74,7 +78,7 @@ const Navbar = () => {
               <main className="flex-1 overflow-y-auto p-2">
                 {cart.items.map((item) => (
                   <div key={item._id} className="py-2">
-                    <CartItem item={item} />
+                    <CartItem item={{ ...item, description: "" }} />
                     <hr className="mt-2" />
                   </div>
                 ))}

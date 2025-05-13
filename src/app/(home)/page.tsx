@@ -29,18 +29,50 @@ export default function Home() {
       {/* Social links top right */}
       <aside className="absolute top-1/4 -translate-y-1/2 right-0 flex flex-col items-end z-30 mt-2 lg:mr-16 font-violet-sans uppercase">
         <ul className="space-y-2 sm:space-y-3 md:space-y-5 text-right text-xs sm:text-sm">
-          <li className="hover:text-primary cursor-pointer transition-colors">
-            Instagram
-          </li>
-          <li className="hover:text-primary cursor-pointer transition-colors">
-            Facebook
-          </li>
-          <li className="hover:text-primary cursor-pointer transition-colors">
-            WhatsApp
-          </li>
-          <li className="hover:text-primary cursor-pointer transition-colors">
-            Twitter
-          </li>
+          {texts?.[0]?.instagram && (
+            <li className="hover:text-primary cursor-pointer transition-colors">
+              <a
+                href={texts[0].instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagram
+              </a>
+            </li>
+          )}
+          {texts?.[0]?.facebook && (
+            <li className="hover:text-primary cursor-pointer transition-colors">
+              <a
+                href={texts[0].facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Facebook
+              </a>
+            </li>
+          )}
+          {texts?.[0]?.whatsapp && (
+            <li className="hover:text-primary cursor-pointer transition-colors">
+              <a
+                href={texts[0].whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WhatsApp
+              </a>
+            </li>
+          )}
+          {texts?.[0]?.twitter && (
+            <li className="hover:text-primary cursor-pointer transition-colors">
+              <a
+                href={texts[0].twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Twitter
+              </a>
+            </li>
+          )}
         </ul>
       </aside>
 

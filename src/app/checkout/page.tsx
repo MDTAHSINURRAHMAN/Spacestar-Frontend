@@ -20,8 +20,8 @@ export default function CheckoutPage() {
   const finalTotal = totalAmount + shippingCost;
 
   return (
-    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
-      <Header text="Complete your purchase" />
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh pb-20">
+      <Header text={bannerText} />
       <Navbar />
 
       <div className="grid grid-cols-1 w-4/6 mx-auto relative">
@@ -132,33 +132,39 @@ export default function CheckoutPage() {
                 </p>
               )}
 
-              <div className="md:w-2/3 ms-auto font-violet-sans text-sm flex flex-wrap gap-2 md:gap-3">
-                <input
-                  type="text"
-                  placeholder="Discount code or gift card"
-                  className="px-5 py-3 placeholder:uppercase flex-grow w-full md:w-auto"
-                />
-                <button className="bg-primary px-8 py-3 text-white uppercase w-full md:w-auto">
-                  Apply
-                </button>
-              </div>
+              {cart.items.length > 0 && (
+                <>
+                  <div className="md:w-2/3 ms-auto font-violet-sans text-sm flex flex-wrap gap-2 md:gap-3">
+                    <input
+                      type="text"
+                      placeholder="Discount code or gift card"
+                      className="px-5 py-3 placeholder:uppercase flex-grow w-full md:w-auto"
+                    />
+                    <button className="bg-primary px-8 py-3 text-white uppercase w-full md:w-auto">
+                      Apply
+                    </button>
+                  </div>
 
-              <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2 uppercase">
-                <p className="text-xs">Subtotal · {cart.items.length} items</p>
-                <p className="text-primary text-end">
-                  ${totalAmount.toFixed(2)}
-                </p>
+                  <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2 uppercase">
+                    <p className="text-xs">
+                      Subtotal · {cart.items.length} items
+                    </p>
+                    <p className="text-primary text-end">
+                      ${totalAmount.toFixed(2)}
+                    </p>
 
-                <p className="text-xs">Shipping</p>
-                <p className="text-primary text-end">
-                  ${shippingCost.toFixed(2)}
-                </p>
+                    <p className="text-xs">Shipping</p>
+                    <p className="text-primary text-end">
+                      ${shippingCost.toFixed(2)}
+                    </p>
 
-                <p className="text-xs">Total</p>
-                <p className="text-primary text-end">
-                  ${finalTotal.toFixed(2)}
-                </p>
-              </div>
+                    <p className="text-xs">Total</p>
+                    <p className="text-primary text-end">
+                      ${finalTotal.toFixed(2)}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

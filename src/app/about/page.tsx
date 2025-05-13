@@ -98,7 +98,7 @@ export default function AboutPage() {
           </div>
 
           {/* Responsive grid: first item is iframe, below are two images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:pt-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:pt-20 pb-20">
             {/* Iframe (YouTube video) */}
             <div className="col-span-1 md:col-span-2 w-full aspect-video">
               {aboutContent?.iframeLink ? (

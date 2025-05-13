@@ -31,7 +31,7 @@ export default function SingleProductPage() {
 
   const { data: product, isLoading: productLoading } = useGetProductQuery(id);
   const { data: reviews = [] } = useGetProductReviewsQuery(id);
-  const { data: allProducts } = useGetAllProductsQuery();
+  const { data: allProducts } = useGetAllProductsQuery({});
 
   if (productLoading) {
     return (
@@ -107,9 +107,10 @@ export default function SingleProductPage() {
               <Image
                 src={product.images[0]}
                 alt={product.name}
-                width={500}
-                height={700}
-                className="w-full"
+                width={470}
+                height={690}
+                className="object-cover"
+                style={{ objectFit: "cover" }}
               />
             ) : (
               <Image
@@ -262,9 +263,10 @@ export default function SingleProductPage() {
               <Image
                 src={product.images[1]}
                 alt={product.name}
-                width={500}
-                height={500}
-                className="w-full"
+                width={470}
+                height={690}
+                className="object-cover"
+                style={{ objectFit: "cover" }}
               />
             ) : (
               <Image
@@ -280,9 +282,10 @@ export default function SingleProductPage() {
             <Image
               src={product.images[2]}
               alt={product.name}
-              width={800}
-              height={600}
-              className="w-full object-cover object-top"
+              width={470}
+              height={690}
+              className="object-cover"
+              style={{ objectFit: "cover" }}
             />
           ) : (
             <Image
@@ -295,9 +298,10 @@ export default function SingleProductPage() {
             <Image
               src={product.images[3]}
               alt={product.name}
-              width={600}
-              height={750}
-              className="w-full object-cover object-top"
+              width={470}
+              height={690}
+              className="object-cover"
+              style={{ objectFit: "cover" }}
             />
           ) : (
             <Image
@@ -308,7 +312,7 @@ export default function SingleProductPage() {
           )}
         </div>
 
-        <div className="pt-14 w-4/6 mx-auto">
+        <div className="pt-14">
           <p className="text-3xl font-helvetica-now-display">Customer Stores</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
             {reviews.length > 0 ? (
@@ -333,7 +337,7 @@ export default function SingleProductPage() {
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="pt-14 w-4/6 mx-auto">
+          <div className="pt-14 pb-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
               {relatedProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />

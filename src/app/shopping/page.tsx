@@ -149,7 +149,7 @@ export default function ShoppingPage() {
           </section>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:flex-grow md:items-center mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:flex-grow md:items-center mt-10 pb-20">
           {products?.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}

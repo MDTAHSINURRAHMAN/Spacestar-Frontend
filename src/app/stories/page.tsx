@@ -121,7 +121,7 @@ export default function StoriesPage() {
       <Header text={texts?.[0]?.text || ""} />
       <main className="flex-grow w-4/6 mx-auto relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
-          <aside className="relative hidden md:block">
+          <aside className="hidden md:block sticky top-8 h-fit">
             {stories.map((story) => (
               <article
                 key={story._id}

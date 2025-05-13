@@ -63,13 +63,14 @@ const CartItem = ({ item, description }: CartItemProps) => {
 
   return (
     <article className="grid grid-cols-5 py-3">
-      <div className="border col-span-2 md:col-span-1">
+      <div className="col-span-2 md:col-span-1">
         <Image
           src={item.image || commonAssets.images.cartPlaceholder}
           alt={item.name}
-          width={500}
-          height={500}
-          className="object-cover h-full w-full"
+          width={130}
+          height={160}
+          className="object-cover"
+          style={{ objectFit: "cover" }}
         />
       </div>
 
@@ -90,7 +91,7 @@ const CartItem = ({ item, description }: CartItemProps) => {
               <p className="font-violet-sans text-muted text-xs leading-tight">
                 Price
               </p>
-              <p className="font-helvetica-now-display text-primary leading-tight text-sm md:text-base">
+              <p className="font-helvetica-now-display text-primary-dark font-medium uppercase">
                 ${item.price}
               </p>
             </div>

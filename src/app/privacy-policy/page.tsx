@@ -115,11 +115,11 @@ export default function PrivacyPolicy() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh pb-20">
       <Header text={texts?.[0]?.text || ""} />
       <main className="flex-grow w-4/6 mx-auto relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
-          <aside className="relative hidden md:block">
+          <aside className="hidden md:block sticky top-24 h-fit">
             {privacies.map((privacy) => (
               <article
                 key={privacy._id}

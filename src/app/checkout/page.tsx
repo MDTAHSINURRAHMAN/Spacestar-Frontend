@@ -5,34 +5,32 @@ import CartItem from "@/components/CartItem";
 import Header from "@/components/Header";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
-import { useGenerateCartIdQuery, useGetCartQuery } from "@/lib/api/cartApi";
-import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 import Navbar from "@/components/Navbar";
+import { useGetAllTextsQuery } from "@/lib/api/homeApi";
 
 export default function CheckoutPage() {
-  const { data: cartIdData } = useGenerateCartIdQuery();
-  const { data: cart } = useGetCartQuery(cartIdData?.cartId ?? "", {
-    skip: !cartIdData?.cartId,
-  });
   const { data: texts } = useGetAllTextsQuery();
+  const bannerText = texts?.[0]?.text || "Shop our latest collection";
+  const cart = useSelector((state: RootState) => state.cart);
 
-  const totalAmount =
-    cart?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
+  const totalAmount = cart.items.reduce((sum, item) => sum + item.total, 0);
   const shippingCost = 5.99; // You can adjust this or make it dynamic based on your needs
   const finalTotal = totalAmount + shippingCost;
 
   return (
-    <div className="pl-[60px] md:pl-[80px] lg:w-4/5 xl:w-3/4 mx-auto mt-8">
-      <Header text={texts?.[0]?.text || ""} />
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
+      <Header text="Complete your purchase" />
       <Navbar />
 
-      <div className="grid grid-cols-1">
+      <div className="grid grid-cols-1 w-4/6 mx-auto relative">
         <main className="space-y-10">
           <div className="flex items-center gap-2">
             <Image
               src={commonAssets.icons.logo}
               alt="Spacestar"
-              className="w-6 sm:w-8 md:w-12"
+              className="w-6 sm:w-8"
             />
             <p className="text-2xl text-primary font-helvetica-now-display">
               Spacestar
@@ -122,13 +120,13 @@ export default function CheckoutPage() {
             </h2>
 
             <div className="space-y-3">
-              {cart?.items.map((item) => (
+              {cart.items.map((item) => (
                 <div key={item._id}>
-                  <CartItem item={item} cartId={cart.cartId} />
+                  <CartItem item={item} />
                   <hr />
                 </div>
               ))}
-              {(!cart?.items || cart.items.length === 0) && (
+              {cart.items.length === 0 && (
                 <p className="text-center py-5 font-violet-sans">
                   Your cart is empty
                 </p>
@@ -146,9 +144,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="font-violet-sans grid grid-cols-2 items-center md:w-1/2 ms-auto gap-y-2 uppercase">
-                <p className="text-xs">
-                  Subtotal · {cart?.items.length ?? 0} items
-                </p>
+                <p className="text-xs">Subtotal · {cart.items.length} items</p>
                 <p className="text-primary text-end">
                   ${totalAmount.toFixed(2)}
                 </p>

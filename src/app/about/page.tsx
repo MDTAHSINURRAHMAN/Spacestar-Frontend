@@ -2,14 +2,48 @@
 
 import commonAssets from "@/assets/commonAssets";
 import Image from "next/image";
-import selectCountryAssets from "../select-country/assets";
 import { useGetAboutContentQuery } from "@/lib/api/aboutApi";
+import Header from "@/components/Header";
+import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import Loader from "@/components/Loader";
+
+// Helper function to ensure proper YouTube embed URL format
+const getYouTubeEmbedUrl = (url: string) => {
+  try {
+    // Handle different YouTube URL formats
+    let videoId = "";
+
+    if (url.includes("youtube.com/embed/")) {
+      return url; // Already in embed format
+    }
+
+    if (url.includes("youtube.com/watch?v=")) {
+      videoId = new URL(url).searchParams.get("v") || "";
+    } else if (url.includes("youtu.be/")) {
+      videoId = url.split("youtu.be/")[1]?.split("?")[0];
+    }
+
+    if (!videoId) return ""; // Return empty if no valid video ID found
+
+    return `https://www.youtube.com/embed/${videoId}`;
+  } catch (error) {
+    console.error("Error parsing YouTube URL:", error);
+    return "";
+  }
+};
 
 export default function AboutPage() {
   const { data: aboutContent, isLoading, error } = useGetAboutContentQuery();
 
+  const { data: texts } = useGetAllTextsQuery();
+  const bannerText = texts?.[0]?.text || "Shop our latest collection";
+
   if (isLoading) {
-    return <div className="p-5 text-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   if (error) {
@@ -17,16 +51,17 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
+      <Header text={bannerText} />
 
-      <main className="flex-grow w-full lg:w-4/5 xl:w-3/4 mx-auto relative z-10">
-        <div className="flex items-center gap-2 pt-10">
+      <main className="flex-grow w-4/6 mx-auto relative">
+        <div className="flex items-center gap-2 pt-6">
           <Image
             src={commonAssets.icons.logo}
             alt="Spacestar"
-            className="w-6 sm:w-8 md:w-12"
+            className="w-6 sm:w-8"
           />
-          <p className="text-xl sm:text-2xl md:text-3xl text-primary font-helvetica-now-display whitespace-nowrap">
+          <p className="text-xl sm:text-2xl text-primary font-helvetica-now-display whitespace-nowrap">
             Spacestar
           </p>
         </div>
@@ -37,18 +72,19 @@ export default function AboutPage() {
           </h1>
 
           <ul className="space-y-3 md:space-y-5 font-medium font-helvetica-now-display text-lg md:text-xl">
-            {aboutContent?.missionPoints.map((point, index) => (
-              <li key={index} className="flex items-baseline gap-3">
-                <span>
-                  <Image
-                    src={commonAssets.icons.star}
-                    className="min-w-[1rem]"
-                    alt=""
-                  />
-                </span>
-                {point}
-              </li>
-            ))}
+            {Array.isArray(aboutContent?.missionPoints) &&
+              aboutContent.missionPoints.map((point, index) => (
+                <li key={index} className="flex items-baseline gap-3">
+                  <span>
+                    <Image
+                      src={commonAssets.icons.star}
+                      className="min-w-[1rem]"
+                      alt=""
+                    />
+                  </span>
+                  {point}
+                </li>
+              ))}
           </ul>
 
           <div className="font-helvetica-now-display space-y-5 text-xl hidden md:block">
@@ -65,32 +101,41 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:pt-20">
             {/* Iframe (YouTube video) */}
             <div className="col-span-1 md:col-span-2 w-full aspect-video">
-              <iframe
-                src="https://www.youtube.com/embed/IISQ-flx4tI?si=NKHAK7wnWzkCwuLj"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full border-0"
-              ></iframe>
+              {aboutContent?.iframeLink ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(aboutContent.iframeLink)}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  className="w-full h-full border-0"
+                ></iframe>
+              ) : null}
             </div>
             {/* Images below iframe - side by side on mobile and larger screens */}
             <div className="w-full">
-              <Image
-                width={1000}
-                height={1000} 
-                src={selectCountryAssets.images.model}
-                alt=""
-                className="w-full object-cover object-top" // Made taller with 4:3 aspect ratio
-              />
+              {aboutContent?.image1Url ? (
+                <Image
+                  width={1000}
+                  height={1000}
+                  src={aboutContent.image1Url}
+                  alt="About us image 1"
+                  className="w-full object-cover object-top"
+                />
+              ) : null}
             </div>
             <div className="w-full">
-              <Image
-                width={1000}
-                height={1000}
-                src={selectCountryAssets.images.model}
-                alt=""
-                className="w-full object-cover object-top" // Made taller with 4:3 aspect ratio
-              />
+              {aboutContent?.image2Url ? (
+                <Image
+                  width={1000}
+                  height={1000}
+                  src={aboutContent.image2Url}
+                  alt="About us image 2"
+                  className="w-full object-cover object-top"
+                />
+              ) : null}
             </div>
           </div>
         </div>

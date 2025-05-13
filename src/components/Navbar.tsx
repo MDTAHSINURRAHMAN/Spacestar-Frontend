@@ -13,43 +13,28 @@ import {
 import CartItem from "./CartItem";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useGetCartQuery } from "@/lib/api/cartApi";
-import { v4 as uuidv4 } from "uuid";
-import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 const Navbar = () => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [cartId, setCartId] = useState("");
+  const cart = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    let id = Cookies.get("cartId") || "";
-    if (!id) {
-      id = uuidv4();
-      Cookies.set("cartId", id, { expires: 7 });
-      // Optionally: call your backend to create an empty cart for this id
-      // await fetch(`/api/cart/${id}`, { method: "POST" });
-    }
-    setCartId(id);
-  }, []);
-
-  const { data: cart } = useGetCartQuery(cartId, { skip: !cartId });
-
-  const totalAmount =
-    cart?.items.reduce((sum, item) => sum + item.total, 0) ?? 0;
+  const totalAmount = cart.items.reduce((sum, item) => sum + item.total, 0);
 
   return (
     <nav
       className={
-        "fixed w-fit p-1 bottom-3 left-1/2 -translate-x-1/2 bg-black z-[999]" +
+        "fixed w-fit p-1 bottom-9 left-1/2 -translate-x-1/2 bg-black z-[999]" +
         (pathname.split("/").includes("select-country") ? " hidden" : "")
       }
     >
-      <ul className="flex gap-1 font-violet-sans text-sm uppercase w-max">
+      <ul className="flex gap-1 font-violet-sans text-sm uppercase">
         {[
           { label: "Home", href: "/" },
           { label: "About", href: "/about" },
@@ -67,32 +52,34 @@ const Navbar = () => {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger>
-            <li className="bg-primary grid place-items-center aspect-square p-2 md:p-2 min-w-fit">
+            <li className="bg-primary grid place-items-center p-2 md:p-2">
               <Image
+                width={127}
+                height={158}
                 src={commonAssets.icons.cart}
                 alt="shopping cart"
                 className="w-4 md:w-full"
               />
             </li>
           </DialogTrigger>
-
-          <DialogContent className="fixed left-1/2 -translate-x-1/2 !rounded-none p-0 max-w-screen-sm z-[999] w-11/12 md:w-4/5 max-h-[70vh] md:max-h-[60vh] flex flex-col bg-white overflow-hidden">
-            <DialogHeader className="p-2 border-b">
-              <DialogTitle className="font-helvetica-now-display text-sm font-semibold !text-left">
+          
+          <DialogContent className="fixed !rounded-none p-0 w-11/12 md:w-[670px] md:h-[455px] flex flex-col bg-white overflow-hidden">
+            <DialogHeader className="p-2">
+              <DialogTitle className="font-helvetica-now-display text-sm !text-left">
                 Cart List
               </DialogTitle>
             </DialogHeader>
 
             <div className="flex flex-col h-full overflow-hidden">
-              <main className="flex-1 overflow-y-auto p-2 max-h-[40vh] md:max-h-[45vh]">
-                {cart?.items.map((item) => (
+              <main className="flex-1 overflow-y-auto p-2">
+                {cart.items.map((item) => (
                   <div key={item._id} className="py-2">
-                    <CartItem item={item} cartId={cart.cartId} />
+                    <CartItem item={item} />
                     <hr className="mt-2" />
                   </div>
                 ))}
-                {(!cart?.items || cart.items.length === 0) && (
-                  <p className="text-center py-5 font-violet-sans">
+                {cart.items.length === 0 && (
+                  <p className="text-center font-violet-sans">
                     Your cart is empty
                   </p>
                 )}

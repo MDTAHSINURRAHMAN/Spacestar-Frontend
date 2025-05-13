@@ -12,6 +12,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import Loader from "@/components/Loader";
 
 export default function ShoppingPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -35,30 +36,27 @@ export default function ShoppingPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 lg:mt-8 min-h-dvh">
-        <Header text={bannerText} />
-        <div className="flex justify-center items-center flex-grow">
-          <p className="text-2xl font-helvetica-now-display">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
       <Header text={bannerText} />
 
       {/* Categories dropdown for mobile (below md) */}
-      <div className="block md:hidden mb-8">
+      <div className="block md:hidden mb-8 font-violet-sans text-xs w-full px-4">
         <Popover>
           <PopoverTrigger asChild>
-            <button className="border border-black px-4 py-2 uppercase font-violet-sans text-xs bg-white w-full">
+            <button className="w-full border border-black py-2 uppercase font-violet-sans text-xs bg-white">
               {selectedCategory || "All"}
               <span className="ml-2">▼</span>
             </button>
           </PopoverTrigger>
-          <PopoverContent align="start" className="p-0 w-full max-w-xs">
-            <ul className="font-violet-sans text-xs uppercase">
+          <PopoverContent className="p-0 w-[18.2rem]">
+            <ul className="font-violet-sans text-xs uppercase w-full">
               <li>
                 <button
                   className={`w-full text-left font-violet-sans uppercase px-4 py-2 border-b border-gray-200 ${selectedCategory === null ? "bg-black text-white" : ""}`}
@@ -82,25 +80,25 @@ export default function ShoppingPage() {
         </Popover>
       </div>
 
-      <main className="flex-grow w-full lg:w-4/5 xl:w-3/4 mx-auto relative pt-2">
-        <div className="flex justify-between items-center pb-5 pt-3 md:pt-0">
+      <main className="flex-grow w-4/6 mx-auto relative">
+        <div className="flex justify-center items-center mt-6">
           <aside className="flex items-center gap-1 sm:gap-2">
             <Image
               src={commonAssets.icons.logo}
               alt="Spacestar"
-              className="w-6 sm:w-8 md:w-12"
+              className="w-6 sm:w-8"
             />
-            <p className="text-xl sm:text-2xl md:text-3xl text-primary font-helvetica-now-display">
+            <p className="text-xl sm:text-2xl text-primary font-helvetica-now-display">
               Spacestar Shopping
             </p>
           </aside>
 
           {/* Categories grid for md and up, unless useDropdown is true */}
-          <section className="hidden md:flex justify-end items-center">
+          <section className="hidden md:block ml-auto font-violet-sans text-xs">
             {useDropdown ? (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="border border-black px-4 py-2 uppercase font-violet-sans text-xs bg-white">
+                  <button className="border border-black px-4 py-4 uppercase font-violet-sans text-xs bg-white">
                     {selectedCategory || "All"}
                     <span className="ml-2">▼</span>
                   </button>
@@ -109,7 +107,7 @@ export default function ShoppingPage() {
                   <ul className="font-violet-sans text-xs uppercase">
                     <li>
                       <button
-                        className={`w-full text-left px-4 py-2 border-b border-gray-200 ${selectedCategory === null ? "bg-black text-white" : ""}`}
+                        className={`w-full text-left px-4 py-4 border-b border-gray-200 ${selectedCategory === null ? "bg-black text-white" : ""}`}
                         onClick={() => setSelectedCategory(null)}
                       >
                         All
@@ -118,7 +116,7 @@ export default function ShoppingPage() {
                     {categories.map((category) => (
                       <li key={category}>
                         <button
-                          className={`w-full text-left px-4 py-2 border-b border-gray-200 ${selectedCategory === category ? "bg-black text-white" : ""}`}
+                          className={`w-full text-left px-4 py-4 border-b border-gray-200 ${selectedCategory === category ? "bg-black text-white" : ""}`}
                           onClick={() => setSelectedCategory(category)}
                         >
                           {category}
@@ -129,10 +127,10 @@ export default function ShoppingPage() {
                 </PopoverContent>
               </Popover>
             ) : (
-              <div className="grid grid-cols-6 gap-2 font-violet-sans text-xs w-full max-w-xl">
+              <div className="flex items-center gap-2 font-violet-sans text-xs justify-end">
                 <button
                   key="all"
-                  className={`w-full border border-black px-2 whitespace-nowrap uppercase h-full py-1 ${selectedCategory === null ? "bg-black text-white" : ""}`}
+                  className={`w-full border border-black px-7 whitespace-nowrap uppercase h-full py-1 ${selectedCategory === null ? "bg-black text-white" : ""}`}
                   onClick={() => setSelectedCategory(null)}
                 >
                   All
@@ -140,7 +138,7 @@ export default function ShoppingPage() {
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`w-full border border-black px-2 whitespace-nowrap uppercase h-full py-1 ${selectedCategory === category ? "bg-black text-white" : ""}`}
+                    className={`w-full border border-black px-7 whitespace-nowrap uppercase h-full py-1 ${selectedCategory === category ? "bg-black text-white" : ""}`}
                     onClick={() => setSelectedCategory(category)}
                   >
                     {category}

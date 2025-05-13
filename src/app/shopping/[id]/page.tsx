@@ -5,6 +5,7 @@ import commonAssets from "@/assets/commonAssets";
 import CustomerReviewCard from "@/components/CustomerReviewCard";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
+import Loader from "@/components/Loader";
 import {
   useGetAllProductsQuery,
   useGetProductQuery,
@@ -19,6 +20,8 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import { useDispatch } from "react-redux";
+import { addToCart as addToCartAction } from "@/lib/features/cartSlice";
 
 export default function SingleProductPage() {
   const params = useParams();
@@ -26,6 +29,7 @@ export default function SingleProductPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [cartId, setCartId] = useState<string | null>(null);
+  const [showAllReviews, setShowAllReviews] = useState<boolean>(false);
 
   const { data: product, isLoading: productLoading } = useGetProductQuery(id);
   const { data: allProducts } = useGetAllProductsQuery({});
@@ -33,6 +37,8 @@ export default function SingleProductPage() {
   const { data: reviews = [] } = useGetProductReviewsQuery(id) as {
     data: Review[];
   };
+
+  const dispatch = useDispatch();
 
   // Get existing cartId from cookie or generate new one
   const existingCartId = Cookies.get("cartId");
@@ -78,8 +84,8 @@ export default function SingleProductPage() {
 
   if (productLoading || isGeneratingCart) {
     return (
-      <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
-        <p className="text-2xl font-helvetica-now-display">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
       </div>
     );
   }
@@ -112,20 +118,26 @@ export default function SingleProductPage() {
     }
 
     try {
+      const cartItem = {
+        productId: product._id,
+        name: product.name,
+        image: product.images[0] || "",
+        size: selectedSize || "M",
+        availableSizes: product.sizes,
+        color: selectedColor || "W",
+        availableColors: product.colors,
+        quantity: 1,
+        price: product.price,
+      };
+
+      // Add to backend
       await addToCart({
         cartId,
-        item: {
-          productId: product._id,
-          name: product.name,
-          image: product.images[0] || "",
-          size: "M",
-          availableSizes: product.sizes,
-          color: "W",
-          availableColors: product.colors,
-          quantity: 1,
-          price: product.price,
-        },
+        item: cartItem,
       });
+
+      // Add to local Redux store
+      dispatch(addToCartAction(cartItem));
     } catch (error) {
       console.error("Failed to add to cart:", error);
     }
@@ -133,7 +145,6 @@ export default function SingleProductPage() {
 
   return (
     <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
-      
       <Header text={texts?.[0]?.text || ""} />
       <div className="flex md:hidden justify-start gap-3 mb-5">
         <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
@@ -143,13 +154,13 @@ export default function SingleProductPage() {
       </div>
       <main className="max-w-screen-xl mx-auto relative z-10 w-full ">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
-          <aside className="order-1 md:sticky md:top-5 md:self-start">
+          <aside className="order-1 md:sticky md:top-5 md:self-start mt-4">
             {hasImages && product.images[0] ? (
               <Image
                 src={product.images[0]}
                 alt={product.name}
                 width={500}
-                height={500}
+                height={700}
                 className="w-full"
               />
             ) : (
@@ -160,7 +171,7 @@ export default function SingleProductPage() {
             )}
           </aside>
 
-          <div className="order-3 md:order-2">
+          <div className="order-3 md:order-2 px-2">
             <div className="hidden md:flex justify-center gap-3">
               <Image
                 src={commonAssets.icons.logo}
@@ -173,10 +184,10 @@ export default function SingleProductPage() {
             </div>
 
             <div className="text-center pt-10">
-              <h1 className="font-helvetica-now-display text-3xl md:text-4xl lg:text-5xl font-medium">
+              <h1 className="font-helvetica-now-display text-3xl md:text-4xl lg:text-6xl font-medium">
                 {product.name}
               </h1>
-              <p className="font-violet-sans uppercase text-sm lg:text-md pt-3">
+              <p className="font-violet-sans uppercase text-sm lg:text-base pt-3">
                 {product.shortDescription}
               </p>
             </div>
@@ -269,8 +280,8 @@ export default function SingleProductPage() {
               </div>
             </div>
 
-            <div className="font-helvetica-now-display text-sm pt-10">
-              <p>
+            <div className="font-helvetica-now-display text-sm pt-10 max-w-full break-words">
+              <p className="whitespace-pre-line">
                 {product.longDescription ||
                   `Crafted from premium materials with meticulous attention to
                 detail, this exclusive Studio Innate™ Long Sleeve T-Shirt
@@ -298,7 +309,7 @@ export default function SingleProductPage() {
             )}
           </div>
 
-          <aside className="order-2 md:order-3 md:sticky md:top-5 md:self-start">
+          <aside className="order-2 md:order-3 md:sticky md:top-5 md:self-start mt-4">
             {hasImages && product.images[1] ? (
               <Image
                 src={product.images[1]}
@@ -316,7 +327,7 @@ export default function SingleProductPage() {
           </aside>
         </div>
 
-        <div className="hidden md:grid grid-cols-2 gap-10 pt-20 lg:w-4/5 xl:w-3/4 mx-auto">
+        <div className="hidden md:grid grid-cols-2 gap-10 pt-14 w-4/6 mx-auto">
           {hasImages && product.images[2] ? (
             <Image
               src={product.images[2]}
@@ -336,8 +347,8 @@ export default function SingleProductPage() {
             <Image
               src={product.images[3]}
               alt={product.name}
-              width={800}
-              height={600}
+              width={600}
+              height={750}
               className="w-full object-cover object-top"
             />
           ) : (
@@ -349,22 +360,34 @@ export default function SingleProductPage() {
           )}
         </div>
 
-        <div className="pt-14 lg:w-4/5 xl:w-3/4 mx-auto">
-          <p className="text-3xl font-helvetica-now-display">
-            Customer Stores
-          </p>
+        <div className="pt-14 w-4/6 mx-auto">
+          <p className="text-3xl font-helvetica-now-display">Customer Stores</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
             {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <CustomerReviewCard
-                  key={review._id}
-                  image={review.imageUrl || review.image}
-                  text={review.review}
-                  rating={review.rating}
-                  userName={review.name}
-                  date={new Date(review.createdAt).toLocaleDateString()}
-                />
-              ))
+              <>
+                {(showAllReviews ? reviews : reviews.slice(0, 6)).map(
+                  (review) => (
+                    <CustomerReviewCard
+                      key={review._id}
+                      image={review.imageUrl || review.image}
+                      text={review.review}
+                      rating={review.rating}
+                      userName={review.name}
+                      date={new Date(review.createdAt).toLocaleDateString()}
+                    />
+                  )
+                )}
+                {!showAllReviews && reviews.length > 6 && (
+                  <div className="col-span-3 flex justify-center">
+                    <button
+                      onClick={() => setShowAllReviews(true)}
+                      className="text-primary text-sm font-violet-sans uppercase hover:underline"
+                    >
+                      View More Stores
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-center col-span-3 py-5 font-violet-sans">
                 No reviews yet
@@ -374,10 +397,7 @@ export default function SingleProductPage() {
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="pt-20 lg:w-4/5 xl:w-3/4 mx-auto">
-            <p className="text-3xl font-helvetica-now-display">
-              Related Products
-            </p>
+          <div className="pt-14 w-4/6 mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
               {relatedProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />

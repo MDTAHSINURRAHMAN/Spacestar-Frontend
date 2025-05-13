@@ -1,81 +1,60 @@
 import commonAssets from "@/assets/commonAssets";
+import { useDispatch } from "react-redux";
 import {
-  useUpdateCartItemMutation,
-  useDeleteCartItemMutation,
-  useAddSizeVariantMutation,
-} from "@/lib/api/cartApi";
-import { CartItem as CartItemType } from "@/types/cart";
+  CartItem as CartItemType,
+  updateCartItem,
+  removeFromCart,
+  addSizeVariant,
+} from "@/lib/features/cartSlice";
 import Image from "next/image";
 
 interface CartItemProps {
   item: CartItemType;
-  cartId: string;
 }
 
-const CartItem = ({ item, cartId }: CartItemProps) => {
-  const [updateCartItem] = useUpdateCartItemMutation();
-  const [deleteCartItem] = useDeleteCartItemMutation();
-  const [addSizeVariant] = useAddSizeVariantMutation();
+const CartItem = ({ item }: CartItemProps) => {
+  const dispatch = useDispatch();
 
-  const handleSizeChange = async (newSize: string) => {
-    try {
-      await updateCartItem({
-        cartId,
+  const handleSizeChange = (newSize: string) => {
+    dispatch(
+      updateCartItem({
         itemId: item._id,
         updates: { size: newSize },
-      });
-    } catch (error) {
-      console.error("Failed to update size:", error);
-    }
+      })
+    );
   };
 
-  const handleColorChange = async (newColor: string) => {
-    try {
-      await updateCartItem({
-        cartId,
+  const handleColorChange = (newColor: string) => {
+    dispatch(
+      updateCartItem({
         itemId: item._id,
         updates: { color: newColor },
-      });
-    } catch (error) {
-      console.error("Failed to update color:", error);
-    }
+      })
+    );
   };
 
-  const handleQuantityChange = async (change: number) => {
+  const handleQuantityChange = (change: number) => {
     const newQuantity = Math.max(1, item.quantity + change);
-    try {
-      await updateCartItem({
-        cartId,
+    dispatch(
+      updateCartItem({
         itemId: item._id,
         updates: { quantity: newQuantity },
-      });
-    } catch (error) {
-      console.error("Failed to update quantity:", error);
-    }
+      })
+    );
   };
 
-  const handleDelete = async () => {
-    try {
-      await deleteCartItem({
-        cartId,
-        itemId: item._id,
-      });
-    } catch (error) {
-      console.error("Failed to delete item:", error);
-    }
+  const handleDelete = () => {
+    dispatch(removeFromCart(item._id));
   };
 
-  const handleAddAnotherSize = async () => {
-    try {
-      await addSizeVariant({
-        cartId,
+  const handleAddAnotherSize = () => {
+    dispatch(
+      addSizeVariant({
         productId: item.productId,
         size: item.availableSizes[0],
         quantity: 1,
-      });
-    } catch (error) {
-      console.error("Failed to add size variant:", error);
-    }
+      })
+    );
   };
 
   return (
@@ -119,7 +98,7 @@ const CartItem = ({ item, cartId }: CartItemProps) => {
           <div className="w-full md:w-auto">
             <h2 className="text-xs">Size</h2>
             <div className="flex gap-5 text-sm md:text-base">
-              {item.availableSizes.map((size) => (
+              {item.availableSizes.map((size: string) => (
                 <button
                   key={size}
                   className={`${size === item.size ? "text-primary" : ""}`}
@@ -133,7 +112,7 @@ const CartItem = ({ item, cartId }: CartItemProps) => {
           <div className="w-full md:w-auto">
             <h2 className="text-xs">Color</h2>
             <div className="flex gap-5 text-sm md:text-base">
-              {item.availableColors.map((color) => (
+              {item.availableColors.map((color: string) => (
                 <button
                   key={color}
                   className={`${color === item.color ? "text-primary" : ""}`}

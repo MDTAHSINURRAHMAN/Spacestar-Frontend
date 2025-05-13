@@ -1,211 +1,147 @@
-import commonAssets from "@/assets/commonAssets";
+"use client";
+
 import Header from "@/components/Header";
 import Image from "next/image";
+import { useGetAllPrivacyQuery } from "@/lib/api/privacyApi";
+import { useGetAllTextsQuery } from "@/lib/api/homeApi";
+import { generateHTML } from "@tiptap/html";
+import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
+import { TipTapContent } from "@/types/privacy";
+import TextStyle from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import Highlight from "@tiptap/extension-highlight";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Typography from "@tiptap/extension-typography";
+import Loader from "@/components/Loader";
 
 export default function PrivacyPolicy() {
-  return (
-    <div className="p-5">
-      <Header />
-      <main className="max-w-screen-xl mx-auto pt-5 md:pt-32 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-          <aside className="relative hidden md:block">
-            <div className="sticky top-20">
-              <Image src={commonAssets.images.logoBlack} alt="" />
+  const {
+    data: privacies,
+    isLoading: privaciesLoading,
+    error: privaciesError,
+  } = useGetAllPrivacyQuery();
+  const { data: texts } = useGetAllTextsQuery();
 
-              <div className="pt-10">
-                <h1 className="text-3xl font-medium">Privacy Policy</h1>
-                <p className="text-lg">
-                  Welcome to Space Star. Your privacy is important to us. This
-                  Privacy Policy explains how we collect, use, and protect your
-                  personal information when you visit our website
-                  ([yourwebsite.com]) and make a purchase. By using our website,
-                  you agree to the terms outlined in this policy.
-                </p>
-              </div>
-            </div>
+  useEffect(() => {}, [privacies, privaciesLoading, privaciesError]);
+
+  const renderTiptapContent = (content: TipTapContent | string) => {
+    try {
+      const parsedContent =
+        typeof content === "string" ? JSON.parse(content) : content;
+
+      const html = generateHTML(parsedContent, [
+        StarterKit.configure({
+          heading: {
+            levels: [1, 2, 3],
+          },
+          bulletList: {
+            keepMarks: true,
+            keepAttributes: true,
+          },
+          orderedList: {
+            keepMarks: true,
+            keepAttributes: true,
+          },
+        }),
+        TextStyle,
+        Color,
+        Highlight.configure({
+          multicolor: true,
+        }),
+        Underline,
+        Link.configure({
+          openOnClick: true,
+          HTMLAttributes: {
+            class: "text-primary hover:underline",
+          },
+        }),
+        Typography,
+      ]);
+
+      return (
+        <div
+          className="space-y-6 text-[1.3rem] [&_p]:mb-6 [&_strong]:text-black [&_em]:italic [&_p:empty]:h-6"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      );
+    } catch (error) {
+      console.error("Error rendering Tiptap content:", error);
+      return <div>Error rendering content</div>;
+    }
+  };
+
+  if (privaciesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (privaciesError) {
+    return (
+      <div className="p-5">
+        <Header text={texts?.[0]?.text || ""} />
+        <main className="max-w-screen-xl mx-auto pt-5 md:pt-32">
+          <div className="text-red-500">
+            Error loading privacy content: {JSON.stringify(privaciesError)}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!privacies || privacies.length === 0) {
+    return (
+      <div className="p-5">
+        <Header text={texts?.[0]?.text || ""} />
+        <main className="max-w-screen-xl mx-auto pt-5 md:pt-32">
+          <div className="text-center">
+            <p className="text-xl text-gray-600">
+              No privacy content available
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
+      <Header text={texts?.[0]?.text || ""} />
+      <main className="flex-grow w-4/6 mx-auto relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
+          <aside className="relative hidden md:block">
+            {privacies.map((privacy) => (
+              <article
+                key={privacy._id}
+                className="font-helvetica-now-display space-y-5"
+              >
+                {privacy.image && (
+                  <Image
+                    src={privacy.image}
+                    alt="Privacy policy image"
+                    width={595}
+                    height={610}
+                    className="w-full h-auto rounded-lg object-cover"
+                    priority
+                  />
+                )}
+              </article>
+            ))}
           </aside>
 
           <section className="space-y-20">
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Information We Collect</h1>
-
-              <p className="text-lg">
-                We collect the following types of data when you interact with
-                our website:
-              </p>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">1 Personal Information</h1>
-
-              <p className="text-lg">
-                When you place an order, register for an account, or subscribe
-                to our newsletter, we may collect:
-              </p>
-
-              <ul className="list-disc pl-5 text-lg">
-                <li>Full Name</li>
-                <li>Email Address</li>
-                <li>Phone Number</li>
-                <li>Billing & Shipping Address</li>
-                <li>
-                  Payment Information (processed securely via third-party
-                  gateways like Stripe, bkash, SSLCommerz, etc.)
-                </li>
-              </ul>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">
-                2 Non-Personal Information
-              </h1>
-
-              <p className="text-lg">
-                We also collect certain data automatically to improve your
-                experience, including:
-              </p>
-
-              <ul className="list-disc pl-5 text-lg">
-                <li>IP Address</li>
-                <li>Browser Type & Device Information</li>
-                <li>Website Interaction Data (Pages visited, clicks, etc.)</li>
-              </ul>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Privacy Policy</h1>
-              <p className="text-lg">
-                We use your information for the following purposes:
-              </p>
-              <ul className="text-lg">
-                <li>
-                  ✅ Order Processing: To confirm, process, and ship your order.
-                </li>
-                <li>
-                  ✅ Customer Support: To respond to inquiries and resolve
-                  issues.
-                </li>
-                <li>
-                  ✅ Marketing & Promotions: To send exclusive offers, updates,
-                  and discounts (only if you opt-in).
-                </li>
-                <li>
-                  ✅ Website Optimization: To analyze traffic and improve user
-                  experience.
-                </li>
-                <li>
-                  ✅ Fraud Prevention & Security: To protect against
-                  unauthorized transactions.
-                </li>
-              </ul>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">
-                Data Protection & Security
-              </h1>
-              <p className="text-lg">
-                We take strong security measures to protect your data:
-              </p>
-              <ul className="list-disc pl-5 text-lg">
-                <li>
-                  SSL Encryption: All transactions are encrypted for maximum
-                  security.
-                </li>
-                <li>
-                  Secure Payment Processing: We do not store your card details;
-                  payments are handled by trusted third-party gateways.
-                </li>
-                <li>
-                  Restricted Access: Only authorized personnel can access
-                  personal data.
-                </li>
-              </ul>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">
-                Cookies & Tracking Technologies
-              </h1>
-              <p className="text-lg">
-                We use cookies to enhance your browsing experience. Cookies help
-                us:
-              </p>
-              <ul className="text-lg">
-                <li>🍪 Remember your preferences and settings</li>
-                <li>🍪 Analyze site traffic for better performance</li>
-                <li>🍪 Deliver personalized content and offers</li>
-              </ul>
-              <p className="text-lg">
-                You can disable cookies in your browser settings, but some
-                features of our website may not function properly without them.
-              </p>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Sharing Your Information</h1>
-              <p className="text-lg">
-                We do not sell or rent your personal information. However, we
-                may share data with:
-              </p>
-              <ul className="list-disc pl-5 text-lg">
-                <li>
-                  Payment Processors (Stripe, SSLCommerz, etc.) for secure
-                  transactions.
-                </li>
-                <li>
-                  Shipping & Courier Services (Pathao, Steedfast, Sundarban,
-                  etc.) to deliver your orders.
-                </li>
-                <li>Legal Authorities if required by law.</li>
-              </ul>
-              <p className="text-lg">
-                All third-party service providers are required to keep your data
-                confidential.
-              </p>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Your Rights & Choices</h1>
-              <p className="text-lg">
-                You have full control over your personal information. You can:
-              </p>
-              <ul className="text-lg">
-                <li>
-                  ✅ Access & Edit Your Data – Update your details from your
-                  account settings.
-                </li>
-                <li>
-                  ✅ Request Data Deletion – Contact us if you wish to delete
-                  your account.
-                </li>
-                <li>
-                  ✅ Opt-Out of Marketing Emails – Unsubscribe anytime via the
-                  email footer.
-                </li>
-              </ul>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Changes to This Policy</h1>
-              <p className="text-lg">
-                We may update this Privacy Policy from time to time. Any changes
-                will be posted on this page with the updated date. If there are
-                significant changes, we will notify you via email.
-              </p>
-            </article>
-
-            <article className="font-helvetica-now-display space-y-5">
-              <h1 className="text-3xl font-medium">Contact Us</h1>
-              <p className="text-lg">
-                For any privacy-related inquiries, feel free to contact us:
-              </p>
-              <ul className="list-disc pl-5 text-lg">
-                <li>📧 Email: support@[yourbrand].com</li>
-                <li>📍 Address: [Your Business Address]</li>
-                <li>📞 Phone: [Your Contact Number]</li>
-              </ul>
-            </article>
+            {privacies.map((privacy) => (
+              <article
+                key={privacy._id}
+                className="font-helvetica-now-display space-y-5"
+              >
+                {renderTiptapContent(privacy.content)}
+              </article>
+            ))}
           </section>
         </div>
       </main>

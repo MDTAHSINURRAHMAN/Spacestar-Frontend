@@ -4,4 +4,7 @@ export interface AboutContent {
   email: string;
   address: string;
   phone: string;
+  iframeLink?: string;
+  image1Url?: string;
+  image2Url?: string;
 }

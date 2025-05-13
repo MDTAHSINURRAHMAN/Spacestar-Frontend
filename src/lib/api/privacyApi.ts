@@ -1,40 +1,41 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { StoryEntry, TipTapContent } from "@/types/story";
+import { PrivacyEntry, TipTapContent } from "@/types/privacy";
+import { storyApi } from "./storyApi";
 
 interface ApiResponse {
   message: string;
   [key: string]: unknown;
 }
 
-interface StoryResponse extends ApiResponse {
-  storyId?: string;
-  story?: StoryEntry;
+interface PrivacyResponse extends ApiResponse {
+  privacyId?: string;
+  privacy?: PrivacyEntry;
 }
 
 interface RootState {
   storyApi: {
     queries: {
       [key: string]: {
-        data?: StoryEntry[];
+        data?: PrivacyEntry[];
       };
     };
   };
 }
 
-export const storyApi = createApi({
-  reducerPath: "storyApi",
+export const privacyApi = createApi({
+  reducerPath: "privacyApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/story`,
+    baseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/privacy`,
     credentials: "include",
   }),
-  tagTypes: ["Story"],
+  tagTypes: ["Privacy"],
   endpoints: (builder) => ({
-    getAllStories: builder.query<StoryEntry[], void>({
+    getAllPrivacy: builder.query<PrivacyEntry[], void>({
       query: () => ({
         url: "/",
         method: "GET",
       }),
-      transformResponse: (response: StoryEntry[] | null) => {
+      transformResponse: (response: PrivacyEntry[] | null) => {
         console.log("Raw API Response:", response);
         return response || [];
       },
@@ -42,25 +43,25 @@ export const storyApi = createApi({
         console.error("API Error:", response);
         return response;
       },
-      providesTags: ["Story"],
+      providesTags: ["Privacy"],
     }),
 
-    getStoryById: builder.query<StoryEntry, string>({
+    getPrivacyById: builder.query<PrivacyEntry, string>({
       query: (id) => `/${id}`,
-      providesTags: (result, error, id) => [{ type: "Story", id }],
+      providesTags: (result, error, id) => [{ type: "Privacy", id }],
     }),
 
-    createStory: builder.mutation<StoryResponse, FormData>({
+    createPrivacy: builder.mutation<PrivacyResponse, FormData>({
       query: (formData) => ({
         url: "/",
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["Story"],
+      invalidatesTags: ["Privacy"],
     }),
 
-    updateStory: builder.mutation<
-      StoryResponse,
+    updatePrivacy: builder.mutation<
+      PrivacyResponse,
       { id: string; formData: FormData; content: TipTapContent }
     >({
       query: ({ id, formData }) => ({
@@ -74,27 +75,27 @@ export const storyApi = createApi({
       ) {
         // Get current cache data
         const state = getState() as RootState;
-        const stories =
-          state.storyApi.queries["getAllStories(undefined)"]?.data;
+        const privacies =
+          state.privacyApi.queries["getAllPrivacy(undefined)"]?.data;
 
-        if (stories) {
-          // Apply optimistic update to getAllStories cache
+        if (privacies) {
+          // Apply optimistic update to getAllPrivacy cache
           const optimisticPatch = dispatch(
-            storyApi.util.updateQueryData(
-              "getAllStories",
+            privacyApi.util.updateQueryData(
+              "getAllPrivacy",
               undefined,
               (draft) => {
-                const storyIndex = draft.findIndex((story) => story._id === id);
-                if (storyIndex !== -1) {
-                  draft[storyIndex].content = content;
+                const privacyIndex = draft.findIndex((privacy) => privacy._id === id);
+                if (privacyIndex !== -1) {
+                  draft[privacyIndex].content = content;
                 }
               }
             )
           );
 
           // Also update the single story cache if it exists
-          const singleStoryPatch = dispatch(
-            storyApi.util.updateQueryData("getStoryById", id, (draft) => {
+          const singlePrivacyPatch = dispatch(
+            privacyApi.util.updateQueryData("getPrivacyById", id, (draft) => {
               draft.content = content;
             })
           );
@@ -104,30 +105,30 @@ export const storyApi = createApi({
           } catch {
             // If the mutation fails, undo the optimistic update
             optimisticPatch.undo();
-            singleStoryPatch.undo();
+            singlePrivacyPatch.undo();
           }
         }
       },
       invalidatesTags: (result, error, { id }) => [
-        "Story",
-        { type: "Story", id },
+        "Privacy",
+        { type: "Privacy", id },
       ],
     }),
 
-    deleteStory: builder.mutation<ApiResponse, string>({
+    deletePrivacy: builder.mutation<ApiResponse, string>({
       query: (id) => ({
         url: `/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Story"],
+      invalidatesTags: ["Privacy"],
     }),
   }),
 });
 
 export const {
-  useGetAllStoriesQuery,
-  useGetStoryByIdQuery,
-  useCreateStoryMutation,
-  useUpdateStoryMutation,
-  useDeleteStoryMutation,
-} = storyApi;
+  useGetAllPrivacyQuery,
+  useGetPrivacyByIdQuery,
+  useCreatePrivacyMutation,
+  useUpdatePrivacyMutation,
+  useDeletePrivacyMutation,
+} = privacyApi;

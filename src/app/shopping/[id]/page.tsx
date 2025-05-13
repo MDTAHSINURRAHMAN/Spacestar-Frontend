@@ -20,8 +20,9 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGetAllTextsQuery } from "@/lib/api/homeApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart as addToCartAction } from "@/lib/features/cartSlice";
+import { RootState } from "@/lib/store";
 
 export default function SingleProductPage() {
   const params = useParams();
@@ -39,6 +40,7 @@ export default function SingleProductPage() {
   };
 
   const dispatch = useDispatch();
+  const cart = useSelector((state: RootState) => state.cart);
 
   // Get existing cartId from cookie or generate new one
   const existingCartId = Cookies.get("cartId");
@@ -114,6 +116,12 @@ export default function SingleProductPage() {
   const handleAddToCart = async () => {
     if (!cartId) {
       console.error("No cart ID available");
+      return;
+    }
+
+    // Check if product is already in cart
+    const isInCart = cart.items.some((item) => item.productId === id);
+    if (isInCart) {
       return;
     }
 

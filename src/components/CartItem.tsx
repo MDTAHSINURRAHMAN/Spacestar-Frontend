@@ -9,10 +9,12 @@ import {
 import Image from "next/image";
 
 interface CartItemProps {
-  item: CartItemType;
+  item: CartItemType & {
+    description: string;
+  };
 }
 
-const CartItem = ({ item }: CartItemProps) => {
+const CartItem = ({ item, description }: CartItemProps) => {
   const dispatch = useDispatch();
 
   const handleSizeChange = (newSize: string) => {
@@ -57,6 +59,8 @@ const CartItem = ({ item }: CartItemProps) => {
     );
   };
 
+  console.log(item);
+
   return (
     <article className="grid grid-cols-5 py-3">
       <div className="border col-span-2 md:col-span-1">
@@ -77,7 +81,7 @@ const CartItem = ({ item }: CartItemProps) => {
               {item.name}
             </h1>
             <p className="font-violet-sans text-muted text-xs leading-tight">
-              Shipping: {item.shippingDate}
+              {description}
             </p>
           </div>
 
@@ -93,9 +97,9 @@ const CartItem = ({ item }: CartItemProps) => {
           </div>
         </div>
 
-        {/* size and color */}
-        <div className="flex justify-start gap-3 md:justify-between font-violet-sans uppercase flex-wrap">
-          <div className="w-full md:w-auto">
+        {/* size, color, quantity and subtotal */}
+        <div className="flex justify-between font-violet-sans uppercase flex-wrap md:flex-nowrap gap-3">
+          <div className="flex-1">
             <h2 className="text-xs">Size</h2>
             <div className="flex gap-5 text-sm md:text-base">
               {item.availableSizes.map((size: string) => (
@@ -109,7 +113,7 @@ const CartItem = ({ item }: CartItemProps) => {
               ))}
             </div>
           </div>
-          <div className="w-full md:w-auto">
+          <div className="flex-1 min-w-[120px]">
             <h2 className="text-xs">Color</h2>
             <div className="flex gap-5 text-sm md:text-base">
               {item.availableColors.map((color: string) => (
@@ -123,15 +127,15 @@ const CartItem = ({ item }: CartItemProps) => {
               ))}
             </div>
           </div>
-          <div>
+          <div className="flex-1 min-w-[120px]">
             <h2 className="text-xs">Quantity</h2>
-            <div className="flex justify-center gap-2 text-sm md:text-base">
+            <div className="flex justify-start gap-2 text-sm md:text-base">
               <button onClick={() => handleQuantityChange(-1)}>-</button>
               <span>{item.quantity}</span>
               <button onClick={() => handleQuantityChange(1)}>+</button>
             </div>
           </div>
-          <div>
+          <div className="flex-1 min-w-[120px]">
             <h2 className="text-xs">Subtotal</h2>
             <p className="text-sm md:text-base">${item.total}</p>
           </div>

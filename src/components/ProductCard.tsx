@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/lib/features/cartSlice";
 import {
   useGenerateCartIdQuery,
@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/cartApi";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import { RootState } from "@/lib/store";
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const dispatch = useDispatch();
   const [addToCartMutation] = useAddToCartMutation();
   const [cartId, setCartId] = useState<string | null>(null);
+  const cart = useSelector((state: RootState) => state.cart);
 
   const hasValidImage =
     product.images &&
@@ -48,6 +50,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
     e.preventDefault(); // Prevent navigation to product detail page
     if (!cartId) {
       console.error("No cart ID available");
+      return;
+    }
+
+    // Check if product is already in cart
+    const isInCart = cart.items.some((item) => item.productId === product._id);
+    if (isInCart) {
       return;
     }
 

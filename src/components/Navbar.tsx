@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setCartOpen } from "@/lib/features/cartSlice";
+import { ShoppingBag } from "lucide-react";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -57,17 +58,21 @@ const Navbar = () => {
         >
           <DialogTrigger>
             <li className="bg-primary grid place-items-center p-2 md:p-2">
+              <ShoppingBag
+                className="w-4 h-4 block md:hidden"
+                color="#212135"
+              />
               <Image
                 width={127}
                 height={158}
                 src={commonAssets.icons.cart}
-                alt="shopping cart"
-                className="w-4 md:w-full"
+                alt="shopping cart" 
+                className="w-4 hidden md:block md:w-full"
               />
             </li>
           </DialogTrigger>
 
-          <DialogContent className="fixed !rounded-none p-0 w-11/12 md:w-[670px] md:h-[455px] flex flex-col bg-white overflow-hidden">
+          <DialogContent className="fixed !rounded-none p-0 w-11/12 md:w-[670px] h-[455px] md:h-[455px] mx-auto flex flex-col bg-white overflow-hidden">
             <DialogHeader className="p-2">
               <DialogTitle className="font-helvetica-now-display text-sm !text-left">
                 Cart List

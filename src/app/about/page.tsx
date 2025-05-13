@@ -54,8 +54,8 @@ export default function AboutPage() {
     <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh">
       <Header text={bannerText} />
 
-      <main className="flex-grow w-4/6 mx-auto relative">
-        <div className="flex items-center gap-2 pt-6">
+      <main className="flex-grow w-full md:w-4/6 md:px-0 mx-auto relative">
+        <div className="flex items-center gap-2 md:pt-6 px-4 md:px-0">
           <Image
             src={commonAssets.icons.logo}
             alt="Spacestar"
@@ -66,7 +66,7 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="space-y-10 font-medium mt-8">
+        <div className="space-y-10 font-medium mt-4 md:mt-8 px-4 md:px-0">
           <h1 className="font-helvetica-now-display text-2xl md:text-3xl text-muted">
             {aboutContent?.brandMessage}
           </h1>
@@ -98,9 +98,9 @@ export default function AboutPage() {
           </div>
 
           {/* Responsive grid: first item is iframe, below are two images */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:pt-20 pb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-5 md:pt-20 pb-10 md:pb-20">
             {/* Iframe (YouTube video) */}
-            <div className="col-span-1 md:col-span-2 w-full aspect-video">
+            <div className="col-span-2 w-full aspect-video">
               {aboutContent?.iframeLink ? (
                 <iframe
                   src={getYouTubeEmbedUrl(aboutContent.iframeLink)}
@@ -118,22 +118,24 @@ export default function AboutPage() {
             <div className="w-full">
               {aboutContent?.image1Url ? (
                 <Image
-                  width={1000}
-                  height={1000}
+                  width={600}
+                  height={750}
                   src={aboutContent.image1Url}
                   alt="About us image 1"
-                  className="w-full object-cover object-top"
+                  className="object-cover w-[165px] md:w-[600px] h-[175px] md:h-[750px]"
+                  style={{ objectFit: "cover" }}
                 />
               ) : null}
             </div>
             <div className="w-full">
               {aboutContent?.image2Url ? (
                 <Image
-                  width={1000}
-                  height={1000}
+                  width={600}
+                  height={750}
                   src={aboutContent.image2Url}
                   alt="About us image 2"
-                  className="w-full object-cover object-top"
+                  className="object-cover w-[165px] md:w-[600px] h-[175px] md:h-[750px]"
+                  style={{ objectFit: "cover" }}
                 />
               ) : null}
             </div>

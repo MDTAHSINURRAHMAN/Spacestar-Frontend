@@ -30,6 +30,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     const cartItem = {
       productId: product._id,
       name: product.name,
+      shortDescription: product.shortDescription,
       image: product.images[0] || "",
       size: product.sizes[0] || "M", // Default to first size or M
       availableSizes: product.sizes,
@@ -57,7 +58,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
           <button
             onClick={handleAddToCart}
-            className="absolute -bottom-16 transition-all left-0 right-0 m-3 group-hover:bottom-0 bg-primary text-white p-2 z-50 font-violet-sans text-sm uppercase text-center"
+            className="absolute bottom-0 md:-bottom-16 transition-all left-0 right-0 m-3 md:group-hover:bottom-0 bg-primary text-white p-2 font-violet-sans text-sm uppercase text-center"
           >
             add to cart
           </button>

@@ -14,7 +14,7 @@ interface CartItemProps {
   };
 }
 
-const CartItem = ({ item, description }: CartItemProps) => {
+const CartItem = ({ item }: CartItemProps) => {
   const dispatch = useDispatch();
 
   const handleSizeChange = (newSize: string) => {
@@ -82,7 +82,7 @@ const CartItem = ({ item, description }: CartItemProps) => {
               {item.name}
             </h1>
             <p className="font-violet-sans text-muted text-xs leading-tight">
-              {description}
+              {item.shortDescription}
             </p>
           </div>
 
@@ -128,17 +128,33 @@ const CartItem = ({ item, description }: CartItemProps) => {
               ))}
             </div>
           </div>
-          <div className="flex-1 min-w-[120px]">
+          {/* Mobile view: Quantity and Subtotal side by side */}
+          <div className="md:hidden w-full flex justify-between">
+            <div className="flex-1">
+              <h2 className="text-xs">Quantity</h2>
+              <div className="flex justify-start gap-2 text-sm">
+                <button onClick={() => handleQuantityChange(-1)}>-</button>
+                <span>{item.quantity}</span>
+                <button onClick={() => handleQuantityChange(1)}>+</button>
+              </div>
+            </div>
+            <div className="flex-1 text-right">
+              <h2 className="text-xs">Subtotal</h2>
+              <p className="text-sm">${item.total}</p>
+            </div>
+          </div>
+          {/* Desktop view: Original layout */}
+          <div className="hidden md:block flex-1 min-w-[120px]">
             <h2 className="text-xs">Quantity</h2>
-            <div className="flex justify-start gap-2 text-sm md:text-base">
+            <div className="flex justify-start gap-2 text-base">
               <button onClick={() => handleQuantityChange(-1)}>-</button>
               <span>{item.quantity}</span>
               <button onClick={() => handleQuantityChange(1)}>+</button>
             </div>
           </div>
-          <div className="flex-1 min-w-[120px]">
+          <div className="hidden md:block flex-1 min-w-[120px]">
             <h2 className="text-xs">Subtotal</h2>
-            <p className="text-sm md:text-base">${item.total}</p>
+            <p className="text-base">${item.total}</p>
           </div>
         </div>
 

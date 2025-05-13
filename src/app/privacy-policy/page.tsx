@@ -15,6 +15,7 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Typography from "@tiptap/extension-typography";
 import Loader from "@/components/Loader";
+import commonAssets from "@/assets/commonAssets";
 
 export default function PrivacyPolicy() {
   const {
@@ -117,8 +118,18 @@ export default function PrivacyPolicy() {
   return (
     <div className="flex flex-col items-center justify-center mt-4 sm:mt-6 lg:mt-8 mb-24 min-h-dvh pb-20">
       <Header text={texts?.[0]?.text || ""} />
-      <main className="flex-grow w-4/6 mx-auto relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 pt-10">
+      <main className="flex-grow w-full md:w-4/6 mx-auto relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 md:pt-6 px-4 md:px-0">
+          <div className="md:hidden flex items-center gap-2 md:pt-6">
+            <Image
+              src={commonAssets.icons.logo}
+              alt="Spacestar"
+              className="w-6 sm:w-8"
+            />
+            <p className="text-xl sm:text-2xl text-primary font-helvetica-now-display whitespace-nowrap">
+              Spacestar
+            </p>
+          </div>
           <aside className="hidden md:block sticky top-24 h-fit">
             {privacies.map((privacy) => (
               <article

@@ -62,6 +62,7 @@ export default function SingleProductPage() {
     const cartItem = {
       productId: product._id,
       name: product.name,
+      shortDescription: product.shortDescription,
       image: product.images[0] || "",
       size: selectedSize || "M",
       availableSizes: product.sizes,
@@ -92,17 +93,17 @@ export default function SingleProductPage() {
   };
 
   return (
-    <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
+    <div className="flex flex-col lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
       <Header text={bannerText} />
-      <div className="flex md:hidden justify-start gap-3 mb-5">
-        <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
+      <div className="flex md:hidden justify-start gap-1 sm:gap-2 mb-5 px-4 md:px-0">
+        <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-6 sm:w-8" />
         <p className="text-2xl md:text-3xl text-primary font-helvetica-now-display">
           Spacestar
         </p>
       </div>
-      <main className="max-w-screen-xl mx-auto relative z-10 w-full ">
+      <main className="max-w-screen-xl mx-auto relative z-10 w-full px-4 md:px-0">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 relative">
-          <aside className="order-1 md:sticky md:top-5 md:self-start mt-4">
+          <aside className="order-1 md:sticky md:top-5 md:self-start mt-2 md:mt-4">
             {hasImages && product.images[0] ? (
               <Image
                 src={product.images[0]}
@@ -133,10 +134,10 @@ export default function SingleProductPage() {
             </div>
 
             <div className="text-center pt-10">
-              <h1 className="font-helvetica-now-display text-3xl md:text-4xl lg:text-6xl font-medium">
+              <h1 className="font-helvetica-now-display text-4xl md:text-6xl font-medium">
                 {product.name}
               </h1>
-              <p className="font-violet-sans uppercase text-sm lg:text-base pt-3">
+              <p className="font-violet-sans uppercase text-base pt-3">
                 {product.shortDescription}
               </p>
             </div>
@@ -312,7 +313,7 @@ export default function SingleProductPage() {
           )}
         </div>
 
-        <div className="pt-14">
+        <div className="pt-14 px-2 md:px-0">
           <p className="text-3xl font-helvetica-now-display">Customer Stores</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
             {reviews.length > 0 ? (
@@ -337,7 +338,7 @@ export default function SingleProductPage() {
         </div>
 
         {relatedProducts.length > 0 && (
-          <div className="pt-14 pb-20">
+          <div className="pt-14 pb-20 px-2 md:px-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-3">
               {relatedProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />

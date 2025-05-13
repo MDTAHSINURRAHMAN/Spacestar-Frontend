@@ -11,7 +11,7 @@ import cartPlaceholder from "./images/cart-placeholder.png";
 import productPlaceholder from "./images/product-placeholder.png";
 import logoLg from "./images/logo-lg.png";
 import logoBlack from "./images/logo-black.png";
-
+import shoppingBag from "./icons/shopping_bag.svg";
 const commonAssets = {
   images: {
     placeholder,
@@ -21,6 +21,6 @@ const commonAssets = {
     logoBlack,
     productDetailsPlaceholder,
   },
-  icons: { logo, cart, delete: deleteIcon, bkash, star, reviewStar },
+  icons: { logo, cart, delete: deleteIcon, bkash, star, reviewStar, shoppingBag },
 };
 export default commonAssets;

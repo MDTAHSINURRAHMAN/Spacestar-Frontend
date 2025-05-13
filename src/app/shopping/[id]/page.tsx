@@ -1,6 +1,5 @@
 "use client";
 
-import Cookies from "js-cookie";
 import commonAssets from "@/assets/commonAssets";
 import CustomerReviewCard from "@/components/CustomerReviewCard";
 import Header from "@/components/Header";
@@ -11,14 +10,9 @@ import {
   useGetProductQuery,
 } from "@/lib/api/productApi";
 import { useGetProductReviewsQuery } from "@/lib/api/reviewApi";
-import {
-  useGenerateCartIdQuery,
-  useAddToCartMutation,
-} from "@/lib/api/cartApi";
-import { Review } from "@/types/review";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGetAllTextsQuery } from "@/lib/api/homeApi";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart as addToCartAction } from "@/lib/features/cartSlice";
@@ -26,47 +20,60 @@ import { RootState } from "@/lib/store";
 
 export default function SingleProductPage() {
   const params = useParams();
-  const id = params.id as string;
-  const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>("");
-  const [cartId, setCartId] = useState<string | null>(null);
-  const [showAllReviews, setShowAllReviews] = useState<boolean>(false);
-
-  const { data: product, isLoading: productLoading } = useGetProductQuery(id);
-  const { data: allProducts } = useGetAllProductsQuery({});
-  const { data: texts } = useGetAllTextsQuery();
-  const { data: reviews = [] } = useGetProductReviewsQuery(id) as {
-    data: Review[];
-  };
-
+  const id = params?.id as string;
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const dispatch = useDispatch();
   const cart = useSelector((state: RootState) => state.cart);
 
-  // Get existing cartId from cookie or generate new one
-  const existingCartId = Cookies.get("cartId");
-  const {
-    data: cartIdData,
-    isLoading: isGeneratingCart,
-    error: cartError,
-  } = useGenerateCartIdQuery(undefined, {
-    skip: !!existingCartId,
-  });
+  const { data: texts } = useGetAllTextsQuery();
+  const bannerText = texts?.[0]?.text || "Shop our latest collection";
 
-  useEffect(() => {
-    // If we have an existing cartId in cookies, use that
-    if (existingCartId) {
-      setCartId(existingCartId);
+  const { data: product, isLoading: productLoading } = useGetProductQuery(id);
+  const { data: reviews = [] } = useGetProductReviewsQuery(id);
+  const { data: allProducts } = useGetAllProductsQuery();
+
+  if (productLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
+        <p className="text-2xl font-helvetica-now-display">Product not found</p>
+      </div>
+    );
+  }
+
+  const hasImages = product.images && product.images.length > 0;
+  const formattedPrice = `$${product.price}`;
+
+  const handleAddToCart = () => {
+    // Check if product is already in cart
+    const isInCart = cart.items.some((item) => item.productId === id);
+    if (isInCart) {
       return;
     }
 
-    // If we got a new cartId from the API, save it
-    if (cartIdData?.cartId) {
-      Cookies.set("cartId", cartIdData.cartId, { expires: 7 });
-      setCartId(cartIdData.cartId);
-    }
-  }, [cartIdData, existingCartId]);
+    const cartItem = {
+      productId: product._id,
+      name: product.name,
+      image: product.images[0] || "",
+      size: selectedSize || "M",
+      availableSizes: product.sizes,
+      color: selectedColor || "W",
+      availableColors: product.colors,
+      quantity: 1,
+      price: product.price,
+    };
 
-  const [addToCart] = useAddToCartMutation();
+    // Add to local Redux store
+    dispatch(addToCartAction(cartItem));
+  };
 
   // Get 3 random related products that are not the current one
   const relatedProducts = allProducts
@@ -84,76 +91,9 @@ export default function SingleProductPage() {
     }
   };
 
-  if (productLoading || isGeneratingCart) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
-
-  if (cartError) {
-    return (
-      <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
-        <p className="text-2xl font-helvetica-now-display text-red-500">
-          Failed to initialize cart. Please try again later.
-        </p>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="p-5 pb-20 min-h-screen flex items-center justify-center">
-        <p className="text-2xl font-helvetica-now-display">Product not found</p>
-      </div>
-    );
-  }
-
-  const hasImages = product.images && product.images.length > 0;
-  const formattedPrice = `$${product.price}`;
-
-  const handleAddToCart = async () => {
-    if (!cartId) {
-      console.error("No cart ID available");
-      return;
-    }
-
-    // Check if product is already in cart
-    const isInCart = cart.items.some((item) => item.productId === id);
-    if (isInCart) {
-      return;
-    }
-
-    try {
-      const cartItem = {
-        productId: product._id,
-        name: product.name,
-        image: product.images[0] || "",
-        size: selectedSize || "M",
-        availableSizes: product.sizes,
-        color: selectedColor || "W",
-        availableColors: product.colors,
-        quantity: 1,
-        price: product.price,
-      };
-
-      // Add to backend
-      await addToCart({
-        cartId,
-        item: cartItem,
-      });
-
-      // Add to local Redux store
-      dispatch(addToCartAction(cartItem));
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-    }
-  };
-
   return (
     <div className="flex flex-col px-4 sm:px-6 lg:px-8 mt-4 relative min-h-screen mb-8 lg:mb-16">
-      <Header text={texts?.[0]?.text || ""} />
+      <Header text={bannerText} />
       <div className="flex md:hidden justify-start gap-3 mb-5">
         <Image src={commonAssets.icons.logo} alt="Spacestar" className="w-8" />
         <p className="text-2xl md:text-3xl text-primary font-helvetica-now-display">
@@ -373,28 +313,16 @@ export default function SingleProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
             {reviews.length > 0 ? (
               <>
-                {(showAllReviews ? reviews : reviews.slice(0, 6)).map(
-                  (review) => (
-                    <CustomerReviewCard
-                      key={review._id}
-                      image={review.imageUrl || review.image}
-                      text={review.review}
-                      rating={review.rating}
-                      userName={review.name}
-                      date={new Date(review.createdAt).toLocaleDateString()}
-                    />
-                  )
-                )}
-                {!showAllReviews && reviews.length > 6 && (
-                  <div className="col-span-3 flex justify-center">
-                    <button
-                      onClick={() => setShowAllReviews(true)}
-                      className="text-primary text-sm font-violet-sans uppercase hover:underline"
-                    >
-                      View More Stores
-                    </button>
-                  </div>
-                )}
+                {reviews.map((review) => (
+                  <CustomerReviewCard
+                    key={review._id}
+                    image={review.imageUrl || review.image}
+                    text={review.review}
+                    rating={review.rating}
+                    userName={review.name}
+                    date={new Date(review.createdAt).toLocaleDateString()}
+                  />
+                ))}
               </>
             ) : (
               <p className="text-center col-span-3 py-5 font-violet-sans">

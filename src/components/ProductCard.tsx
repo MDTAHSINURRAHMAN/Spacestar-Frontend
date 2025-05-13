@@ -3,12 +3,6 @@ import Link from "next/link";
 import { Product } from "@/types/product";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/lib/features/cartSlice";
-import {
-  useGenerateCartIdQuery,
-  useAddToCartMutation,
-} from "@/lib/api/cartApi";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
 import { RootState } from "@/lib/store";
 
 interface ProductCardProps {
@@ -17,8 +11,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const dispatch = useDispatch();
-  const [addToCartMutation] = useAddToCartMutation();
-  const [cartId, setCartId] = useState<string | null>(null);
   const cart = useSelector((state: RootState) => state.cart);
 
   const hasValidImage =
@@ -26,32 +18,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
     product.images.length > 0 &&
     typeof product.images[0] === "string";
 
-  // Get existing cartId from cookie or generate new one
-  const existingCartId = Cookies.get("cartId");
-  const { data: cartIdData } = useGenerateCartIdQuery(undefined, {
-    skip: !!existingCartId,
-  });
-
-  useEffect(() => {
-    // If we have an existing cartId in cookies, use that
-    if (existingCartId) {
-      setCartId(existingCartId);
-      return;
-    }
-
-    // If we got a new cartId from the API, save it
-    if (cartIdData?.cartId) {
-      Cookies.set("cartId", cartIdData.cartId, { expires: 7 });
-      setCartId(cartIdData.cartId);
-    }
-  }, [cartIdData, existingCartId]);
-
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation to product detail page
-    if (!cartId) {
-      console.error("No cart ID available");
-      return;
-    }
 
     // Check if product is already in cart
     const isInCart = cart.items.some((item) => item.productId === product._id);
@@ -59,30 +27,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
       return;
     }
 
-    try {
-      const cartItem = {
-        productId: product._id,
-        name: product.name,
-        image: product.images[0] || "",
-        size: product.sizes[0] || "M", // Default to first size or M
-        availableSizes: product.sizes,
-        color: product.colors[0] || "W", // Default to first color or W
-        availableColors: product.colors,
-        quantity: 1,
-        price: product.price,
-      };
+    const cartItem = {
+      productId: product._id,
+      name: product.name,
+      image: product.images[0] || "",
+      size: product.sizes[0] || "M", // Default to first size or M
+      availableSizes: product.sizes,
+      color: product.colors[0] || "W", // Default to first color or W
+      availableColors: product.colors,
+      quantity: 1,
+      price: product.price,
+    };
 
-      // Add to backend
-      await addToCartMutation({
-        cartId,
-        item: cartItem,
-      });
-
-      // Add to local Redux store
-      dispatch(addToCart(cartItem));
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-    }
+    // Add to local Redux store
+    dispatch(addToCart(cartItem));
   };
 
   return (

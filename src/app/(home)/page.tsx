@@ -27,7 +27,7 @@ export default function Home() {
       <Header text={texts?.[0]?.text || ""} />
 
       {/* Social links top right */}
-      <aside className="absolute top-1/4 -translate-y-1/2 right-0 flex flex-col items-end z-30 mt-2 lg:mr-16 xl:mr-24 font-violet-sans uppercase">
+      <aside className="absolute top-1/4 -translate-y-1/2 right-0 flex flex-col items-end z-30 mt-2 lg:mr-16 font-violet-sans uppercase">
         <ul className="space-y-2 sm:space-y-3 md:space-y-5 text-right text-xs sm:text-sm">
           <li className="hover:text-primary cursor-pointer transition-colors">
             Instagram
@@ -84,7 +84,7 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="w-10/12 mx-auto">
+      <footer className="w-11/12 mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 font-violet-sans uppercase text-xs sm:text-sm">
           <div className="text-center sm:text-left">
             &copy; 2025 Spacestar LTD. All rights reserved.

@@ -94,7 +94,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.name}
             width={398}
             height={586}
-            className="object-cover"
+            className="object-cover w-[398px] h-[586px]"
+            style={{ objectFit: "cover" }}
           />
           <button
             onClick={handleAddToCart}

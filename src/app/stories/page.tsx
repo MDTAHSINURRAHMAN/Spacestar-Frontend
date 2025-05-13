@@ -10,7 +10,7 @@ import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
 import { TipTapContent } from "@/types/story";
-import TextStyle from "@tiptap/extension-text-style";
+import { CustomTextStyle } from "@/components/TextStyle";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
@@ -50,7 +50,7 @@ export default function StoriesPage() {
             keepAttributes: true,
           },
         }),
-        TextStyle,
+        CustomTextStyle,
         Color,
         Highlight.configure({
           multicolor: true,
@@ -69,7 +69,10 @@ export default function StoriesPage() {
 
       return (
         <div
-          className="space-y-6 text-[1.3rem] [&_p]:mb-6 [&_strong]:text-black [&_em]:italic [&_p:empty]:h-6"
+          className="space-y-6 text-[1.3rem] [&_p]:mb-6 [&_strong]:text-black [&_em]:italic [&_p:empty]:h-6 [&_*]:transition-colors prose prose-lg max-w-none [&_span[style*=color]]:!text-[var(--tiptap-color)]"
+          style={{
+            "--tiptap-color": "inherit",
+          }}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );

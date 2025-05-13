@@ -105,3 +105,18 @@ html {
   background-color: rgba(0, 0, 0, 0.7);
   /* Darker color on hover */
 }
+
+/* TipTap text color styles */
+[style*="color:"] {
+  color: var(--tiptap-color) !important;
+}
+
+[style*="color:"] {
+  --tiptap-color: attr(style color);
+}
+
+/* Ensure TipTap color styles take precedence */
+.ProseMirror [style*="color:"],
+.prose [style*="color:"] {
+  color: var(--tiptap-color) !important;
+}
